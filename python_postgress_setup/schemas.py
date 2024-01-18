@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS admin (
 
 CREATE_ENDPOINT_DATA_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS endpoint_data (
-    endpoint_id SERIAL PRIMARY KEY,
+    endpoint_id UUID PRIMARY KEY,
     is_down BOOLEAN NOT NULL,
     outage_id UUID,
     ntf_is_being_handled BOOLEAN NOT NULL,
