@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use teloxide::{
     dispatching::Dispatcher,
     payloads::SendMessageSetters,
@@ -9,10 +7,10 @@ use teloxide::{
 };
 
 use teloxide::prelude::*;
-use tokio::sync::mpsc::{channel, Sender};
-use uuid::{uuid, Uuid};
+use tokio::sync::mpsc::Sender;
+use uuid::Uuid;
 
-use crate::lib::{NotificationData, NotificationSender, ResponseData};
+use crate::notification_service::{NotificationData, NotificationSender, ResponseData};
 
 #[derive(Debug, Clone)]
 pub struct TelegramNotificationSender {
@@ -100,7 +98,7 @@ impl TelegramReceiver {
 
     async fn handle_reply(
         msg: Message,
-        bot: Bot,
+        _bot: Bot,
         s_s: Sender<ResponseData>,
     ) -> ResponseResult<()> {
         if let Some(response) = msg

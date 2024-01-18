@@ -1,8 +1,6 @@
-use anyhow::Error;
-use sqlx::{FromRow, Decode, postgres::types::PgInterval};
+use sqlx::{postgres::types::PgInterval, FromRow};
 use uuid::Uuid;
-use chrono::{DateTime, Utc, NaiveDate, NaiveDateTime};
-use std::{time::Duration, sync::Arc};
+use chrono::NaiveDateTime;
 
 pub type AdminId = Uuid;
 pub type ContactId = String;

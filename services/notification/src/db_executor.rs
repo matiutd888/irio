@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     db::get_postgres_connection,
     domain::{Admin, AdminId, EndpointData, EndpointId, OutageId},
-    lib::DBQueryExecutor,
+    notification_service::DBQueryExecutor,
 };
 
 #[derive(Clone, Debug)]
@@ -15,11 +15,11 @@ pub struct MyDBQueryExecutor {
     postgres: Arc<Pool<Postgres>>,
     secs_wait_when_handled: u32,
     service_id: Uuid,
-    n_endpoints_to_select: u32,
+    _n_endpoints_to_select: u32,
 }
 
 impl MyDBQueryExecutor {
-    const ENDPOINT_DB_LAYOUT: &str = "
+    const ENDPOINT_DB_LAYOUT: &'static str = "
     endpoint_id,
     is_down,
     outage_id,
@@ -34,9 +34,9 @@ impl MyDBQueryExecutor {
     ntf_allowed_response_duration,
     ntf_first_responded";
 
-    const ENDPOINTS_TABLE_NAME: &str = "endpoints";
-    const ADMINS_TABLE_NAME: &str = "admins";
-    const CURRENT_TIMESTAMP: &str = "CURRENT_TIMESTAMP";
+    const ENDPOINTS_TABLE_NAME: &'static str = "endpoints";
+    const ADMINS_TABLE_NAME: &'static str = "admins";
+    const CURRENT_TIMESTAMP: &'static str = "CURRENT_TIMESTAMP";
 
     pub async fn new(
         secs_wait_while_handled: u32,
@@ -49,7 +49,7 @@ impl MyDBQueryExecutor {
             postgres: postgres,
             secs_wait_when_handled: secs_wait_while_handled,
             service_id: service_id,
-            n_endpoints_to_select: n_endpoints_to_select,
+            _n_endpoints_to_select: n_endpoints_to_select,
         }
     }
 
