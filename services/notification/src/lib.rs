@@ -37,7 +37,7 @@ pub trait DBQueryExecutor: Send + Sync {
 // Send notification to given
 #[async_trait::async_trait]
 pub trait NotificationSender: Send + Sync {
-    async fn send_notification(x: NotificationData);
+    async fn send_notification(&self, x: NotificationData);
 }
 
 #[async_trait::async_trait]
@@ -47,14 +47,14 @@ pub trait ResponseConsumer: Send + Sync {
 }
 
 pub struct NotificationData {
-    admin: AdminId,
-    outage_id: OutageId,
-    endpoint: EndpointId,
-    contact_id: ContactId,
+    pub admin: AdminId,
+    pub outage_id: OutageId,
+    pub endpoint: EndpointId,
+    pub contact_id: ContactId,
 }
 
 pub struct ResponseData {
-    admin: AdminId,
-    outage_id: OutageId,
-    endpoint: EndpointId,
+    pub admin: AdminId,
+    pub outage_id: OutageId,
+    pub endpoint: EndpointId,
 }

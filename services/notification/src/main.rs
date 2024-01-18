@@ -4,7 +4,7 @@ mod utils;
 mod domain;
 mod db;
 mod db_executor;
-
+mod notification_sender;
 
 use anyhow::Result;
 
