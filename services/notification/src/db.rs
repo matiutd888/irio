@@ -15,7 +15,7 @@ pub async fn get_postgres_connection() -> Result<Arc<Pool<Postgres>>> {
     
     // Establish a connection pool
     let pool = PgPoolOptions::new()
-        .max_connections(5) // Set the maximum number of connections in the pool
+        .max_connections(10) // Set the maximum number of connections in the pool
         .connect(&database_url)
         .await?;
     Ok(Arc::new(pool))

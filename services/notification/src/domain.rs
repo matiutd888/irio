@@ -26,10 +26,11 @@ pub struct EndpointData {
     pub ntf_primary_admin: AdminId,
     pub ntf_secondary_admin: AdminId,
     pub ntf_allowed_response_duration: MyDuration,
-    pub ntf_responded: bool,
+    pub ntf_first_responded: bool,
 }
 
-pub struct Admins {
+#[derive(Debug, FromRow, Clone)]
+pub struct Admin {
     pub admin_id: AdminId,
     pub contact_id: ContactId
 }

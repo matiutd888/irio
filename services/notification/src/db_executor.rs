@@ -1,21 +1,17 @@
-use anyhow::Result;
-use chrono::{DateTime, Duration, Utc};
-use sqlx::{
-    any,
-    postgres::PgQueryResult,
-    query::{self, Query},
-    Pool, Postgres,
-};
-use std::{fmt::format, sync::Arc};
+use anyhow::{Ok, Result};
+
+use sqlx::{Pool, Postgres};
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
     db::get_postgres_connection,
-    domain::{EndpointData, EndpointId, OutageId},
+    domain::{Admin, AdminId, EndpointData, EndpointId, OutageId},
     lib::DBQueryExecutor,
 };
 
-struct MyDBQueryExecutor {
+#[derive(Clone, Debug)]
+pub struct MyDBQueryExecutor {
     postgres: Arc<Pool<Postgres>>,
     secs_wait_when_handled: u32,
     service_id: Uuid,
@@ -36,9 +32,10 @@ impl MyDBQueryExecutor {
     ntf_primary_admin,
     ntf_secondary_admin,
     ntf_allowed_response_duration,
-    ntf_responded";
+    ntf_first_responded";
 
     const ENDPOINTS_TABLE_NAME: &str = "endpoints";
+    const ADMINS_TABLE_NAME: &str = "admins";
     const CURRENT_TIMESTAMP: &str = "CURRENT_TIMESTAMP";
 
     pub async fn new(
@@ -97,6 +94,23 @@ impl MyDBQueryExecutor {
         select_endpoints_str
     }
 
+    async fn sql_get_admin_id(&self, admin_id: AdminId) -> Result<Admin> {
+        let get_admin_id_str = format!(
+            "SELECT * 
+            FROM {} 
+            WHERE 
+                admin_id = $1",
+            Self::ADMINS_TABLE_NAME
+        );
+        let ret = sqlx::query_as::<Postgres, Admin>(&get_admin_id_str)
+            .bind(admin_id)
+            .fetch_all(self.postgres.as_ref())
+            .await
+            .map_err(anyhow::Error::msg)?;
+        assert!(ret.len() == 1);
+        Ok(ret[0].clone())
+    }
+
     async fn execute_statement_returning_endpoints(
         &self,
         query: &str,
@@ -115,7 +129,7 @@ impl MyDBQueryExecutor {
         let format = format!(
             "UPDATE {} 
             SET 
-                ntf_responded = true 
+                ntf_first_responded = true 
             WHERE 
                 endpoint_id = $1 AND outage_id = $2",
             Self::ENDPOINTS_TABLE_NAME
@@ -218,5 +232,9 @@ impl DBQueryExecutor for MyDBQueryExecutor {
     ) -> Result<()> {
         self.set_second_notification_sent(endpoint_id, outage_id)
             .await
+    }
+
+    async fn get_admin_data(&self, admin_id: AdminId) -> Result<Admin> {
+        self.sql_get_admin_id(admin_id).await
     }
 }

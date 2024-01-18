@@ -1,16 +1,17 @@
 use chrono::Utc;
-mod lib;
-mod utils;
-mod domain;
 mod db;
 mod db_executor;
+mod domain;
+mod lib;
 mod notification_sender;
 
-use anyhow::Result;
+use anyhow::{Ok, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let x = Utc::now();
-    println!("Hello postgres! {}", x.timestamp_millis());
+    let j = tokio::spawn(async {
+        lib::run_notification_service().await;
+    });
+    let _ = j.await;
     Ok(())
 }

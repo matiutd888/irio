@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use teloxide::{
-    dispatching::{Dispatcher, DispatcherBuilder},
+    dispatching::Dispatcher,
     payloads::SendMessageSetters,
     requests::{Request, Requester, ResponseResult},
     types::{Message, ParseMode, Update, UserId},
@@ -12,19 +12,22 @@ use teloxide::prelude::*;
 use tokio::sync::mpsc::{channel, Sender};
 use uuid::{uuid, Uuid};
 
-use crate::lib::{NotificationData, NotificationSender, ResponseConsumer, ResponseData};
+use crate::lib::{NotificationData, NotificationSender, ResponseData};
 
+#[derive(Debug, Clone)]
 pub struct TelegramNotificationSender {
-    bot: Arc<Bot>,
+    bot: Bot,
 }
 
+
+#[derive(Debug, Clone)]
 pub struct TelegramReceiver {
-    bot: Arc<Bot>,
-    sender: Arc<Sender<ResponseData>>,
+    bot: Bot,
+    sender: Sender<ResponseData>,
 }
 
 impl TelegramNotificationSender {
-    pub fn new(b: Arc<Bot>) -> TelegramNotificationSender {
+    pub fn new(b: Bot) -> TelegramNotificationSender {
         TelegramNotificationSender { bot: b }
     }
 }
@@ -88,7 +91,7 @@ fn parse_response(input: &str) -> Option<ResponseData> {
 }
 
 impl TelegramReceiver {
-    pub fn new(b: Arc<Bot>, sender: Arc<Sender<ResponseData>>) -> TelegramReceiver {
+    pub fn new(b: Bot, sender: Sender<ResponseData>) -> TelegramReceiver {
         TelegramReceiver {
             bot: b,
             sender: sender,
@@ -98,7 +101,7 @@ impl TelegramReceiver {
     async fn handle_reply(
         msg: Message,
         bot: Bot,
-        s_s: Arc<Sender<ResponseData>>,
+        s_s: Sender<ResponseData>,
     ) -> ResponseResult<()> {
         if let Some(response) = msg
             .reply_to_message()
@@ -110,9 +113,9 @@ impl TelegramReceiver {
         Ok(())
     }
 
-    async fn listen_for_replies(&self) {
+    pub async fn listen_for_replies(&self) {
         let handler = Update::filter_message().endpoint(
-            |bot: Bot, sender: Arc<Sender<ResponseData>>, msg: Message| async move {
+            |bot: Bot, sender: Sender<ResponseData>, msg: Message| async move {
                 Self::handle_reply(msg, bot, sender).await
             },
         );
@@ -125,6 +128,14 @@ impl TelegramReceiver {
     }
 }
 
-pub fn create_telegram_bot() -> Arc<Bot> {
-    Arc::new(Bot::new("6886711339:AAGtn-uPuu2dHi4Y4KmJF47ovymj4XCAes4"))
+pub fn create_telegram_bot() -> Bot {
+    Bot::new("6886711339:AAGtn-uPuu2dHi4Y4KmJF47ovymj4XCAes4")
+}
+
+pub fn create_notification_sender_and_receiver(s: Sender<ResponseData>) -> (TelegramNotificationSender, TelegramReceiver) {
+    let b = create_telegram_bot();
+    (
+        TelegramNotificationSender::new(b.clone()),
+        TelegramReceiver::new(b, s)
+    )
 }
