@@ -1,19 +1,16 @@
-use crate::{
-    db::{get_scylla_connection, get_postgres_connection},
-    domain::{EndpointData, EndpointDataDB},
-    lib::DBQueryExecutor,
-};
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
-use sqlx::{Pool, Postgres, query};
-use uuid::Uuid;
+use sqlx::{query, Pool, Postgres};
 use std::{fmt::format, sync::Arc};
+use uuid::Uuid;
+
+use crate::{db::get_postgres_connection, domain::EndpointData, lib::DBQueryExecutor};
 
 struct MyDBQueryExecutor {
     postgres: Arc<Pool<Postgres>>,
     secs_wait_when_handled: u32,
     service_id: Uuid,
-    n_endpoints_to_select: u32
+    n_endpoints_to_select: u32,
 }
 
 impl MyDBQueryExecutor {
@@ -25,7 +22,7 @@ impl MyDBQueryExecutor {
     ntf_is_being_handled_timestamp,
     ntf_is_being_handled_service_id,
     ntf_is_first_notification_sent,
-    ntf_first_notification_sent_plus_allowed_response_time,
+    ntf_first_notification_sent_timestamp,
     ntf_is_second_notification_sent,
     ntf_primary_admin,
     ntf_secondary_admin,
@@ -38,7 +35,7 @@ impl MyDBQueryExecutor {
     pub async fn new(
         secs_wait_while_handled: u32,
         n_endpoints_to_select: u32,
-        service_id: Uuid
+        service_id: Uuid,
     ) -> MyDBQueryExecutor {
         let postgres = get_postgres_connection().await.unwrap();
 
@@ -50,9 +47,9 @@ impl MyDBQueryExecutor {
         }
     }
 
-
     fn sql_condition_should_row_be_handled(&self) -> String {
-        let notification_needs_to_be_sent_condition: String = format!("(NOT ntf_first_responded) 
+        let notification_needs_to_be_sent_condition: String = format!(
+            "(NOT ntf_first_responded) 
                 AND (
                     (NOT ntf_is_first_notification_sent) 
                     OR (
@@ -60,7 +57,9 @@ impl MyDBQueryExecutor {
                         AND
                         (NOT ntf_is_second_notification_sent)
                     )
-                )", Self::CURRENT_TIMESTAMP);
+                )",
+            Self::CURRENT_TIMESTAMP
+        );
 
         let is_not_handled: String = format!("(NOT ntf_is_being_handled) OR (ntf_is_being_handled_timestamp + INTERVAL '{} seconds' < {})", self.secs_wait_when_handled, Self::CURRENT_TIMESTAMP);
         format!(
@@ -75,7 +74,7 @@ impl MyDBQueryExecutor {
         )
     }
 
-    fn sql_update_and_select_endpoints_str(&self) -> String {        
+    fn sql_update_and_select_endpoints_str(&self) -> String {
         let select_endpoints_str: String = {
             format!(
                 "UPDATE {} SET {} where ({}) RETURNING {}",
@@ -89,20 +88,18 @@ impl MyDBQueryExecutor {
         select_endpoints_str
     }
 
-    async fn execute_statement_returning_endpoints(&self, query: &str) -> Vec<EndpointData> {
-        let dupa = sqlx::query_as!(
-            EndpointData,
-            "query"
-        );
-        Vec::new()
+    async fn execute_statement_returning_endpoints(&self, query: &str) -> Result<Vec<EndpointData>> {
+        sqlx::query_as::<Postgres, EndpointData>(query)
+            .fetch_all(self.postgres.as_ref())
+            .await.map_err(anyhow::Error::msg)
     }
 
     // async fn update_endpoint_to_be_handled_lwt_str() -> String {
     //     let endpoint_id_is_equal_to = "endpoint_id = ?";
     //     let endpoint_is_still_not_handled = Self::sql_condition_should_row_be_handled();
     //     let update_endpoints_to_be_handled_str: String = format!(
-    //         "UPDATE {} WHERE {} IF ({})", 
-    //         Self::ENDPOINTS_TABLE_NAME, 
+    //         "UPDATE {} WHERE {} IF ({})",
+    //         Self::ENDPOINTS_TABLE_NAME,
     //         endpoint_id_is_equal_to,
     //         endpoint_is_still_not_handled
     //     );
@@ -114,9 +111,9 @@ impl MyDBQueryExecutor {
 #[async_trait::async_trait]
 impl DBQueryExecutor for MyDBQueryExecutor {
     async fn get_endpoints_to_process(&self) -> Result<Vec<EndpointData>> {
-        let select_query_result = self.execute_select_statement().await;
-        let extracted_endpoints = Self::extract_endpoints_from_query_result(select_query_result)?;
-        
-        Ok(Vec::new())
+        let sql_query = self.sql_update_and_select_endpoints_str();
+        log::debug!("sql_query to select all endpoints {}", sql_query.clone());
+        let ret = self.execute_statement_returning_endpoints(sql_query.as_str()).await; 
+        ret
     }
 }
