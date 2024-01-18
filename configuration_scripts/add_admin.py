@@ -1,28 +1,29 @@
 import argparse
 import psycopg2
-from uuid import uuid4
 
 def add_admin_data(cursor, admin_data):
     try:
         for admin in admin_data:
             cursor.execute(
-                "INSERT INTO admin (admin_id, phone_number, email_address) VALUES (%s, %s, %s)",
-                (str(admin['admin_id']), admin['phone_number'], admin['email_address'])
+                "INSERT INTO admin (contact_id, phone_number, email_address) VALUES (%s, %s, %s) RETURNING admin_id",
+                (admin['contact_id'], admin['phone_number'], admin['email_address'])
             )
+            admin_id = cursor.fetchone()[0]
 
-        print("Admin added successfully!")
+            print(f"Admin added successfully with admin_id: {admin_id}")
 
     except Exception as e:
         print(f"Error adding admin: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Add a single admin to the admin table.")
+    parser.add_argument('--contact-id', required=True, help='Contact ID of the admin')
     parser.add_argument('--phone', required=True, help='Phone number of the admin')
     parser.add_argument('--email', required=True, help='Email address of the admin')
     args = parser.parse_args()
 
     admin_data_to_add = [
-        {'admin_id': uuid4(), 'phone_number': args.phone, 'email_address': args.email}
+        {'contact_id': args.contact_id, 'phone_number': args.phone, 'email_address': args.email}
     ]
 
     db_params = {

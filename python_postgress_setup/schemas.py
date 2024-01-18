@@ -1,6 +1,7 @@
 CREATE_ADMIN_TABLE_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS admin (
-    admin_id UUID PRIMARY KEY,
+    admin_id SERIAL PRIMARY KEY,
+    contact_id VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     email_address VARCHAR(255) NOT NULL
 );
@@ -8,7 +9,8 @@ CREATE TABLE IF NOT EXISTS admin (
 
 CREATE_ENDPOINT_DATA_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS endpoint_data (
-    endpoint_id UUID PRIMARY KEY,
+    endpoint_id SERIAL PRIMARY KEY,
+    http_address VARCHAR(255) NOT NULL,
     is_down BOOLEAN NOT NULL,
     outage_id UUID,
     ntf_is_being_handled BOOLEAN NOT NULL,
@@ -17,8 +19,8 @@ CREATE TABLE IF NOT EXISTS endpoint_data (
     ntf_is_first_notification_sent BOOLEAN NOT NULL,
     ntf_first_notification_sent_timestamp TIMESTAMP,
     ntf_is_second_notification_sent BOOLEAN NOT NULL,
-    conf_primary_admin UUID REFERENCES admin(admin_id) NOT NULL,
-    conf_secondary_admin UUID REFERENCES admin(admin_id) NOT NULL,
+    conf_primary_admin INT REFERENCES admin(admin_id) NOT NULL,
+    conf_secondary_admin INT REFERENCES admin(admin_id) NOT NULL,
     conf_allowed_response_duration INTERVAL NOT NULL,
     ntf_first_responded BOOLEAN NOT NULL
 );
