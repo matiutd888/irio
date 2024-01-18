@@ -1,12 +1,16 @@
 use std::sync::Arc;
 
-use anyhow::{Result, anyhow};
 use teloxide::{
+    dispatching::{Dispatcher, DispatcherBuilder},
     payloads::SendMessageSetters,
     requests::{Request, Requester, ResponseResult},
-    types::{ParseMode, UserId, Message},
+    types::{Message, ParseMode, Update, UserId},
     Bot,
 };
+
+use teloxide::prelude::*;
+use tokio::sync::mpsc::{channel, Sender};
+use uuid::{uuid, Uuid};
 
 use crate::lib::{NotificationData, NotificationSender, ResponseConsumer, ResponseData};
 
@@ -16,7 +20,7 @@ pub struct TelegramNotificationSender {
 
 pub struct TelegramReceiver {
     bot: Arc<Bot>,
-    consumer: Arc<dyn ResponseConsumer>,
+    sender: Arc<Sender<ResponseData>>,
 }
 
 impl TelegramNotificationSender {
@@ -29,8 +33,8 @@ impl TelegramNotificationSender {
 impl NotificationSender for TelegramNotificationSender {
     async fn send_notification(&self, x: NotificationData) {
         let text = format!(
-            "endpoint={};outage={};is_first={}",
-            x.endpoint, x.outage_id, x.is_first
+            "endpoint={};outage={};is_first={};admin={}",
+            x.endpoint, x.outage_id, x.is_first, x.admin
         );
 
         let user_id = UserId(x.contact_id.parse().unwrap());
@@ -47,58 +51,79 @@ impl NotificationSender for TelegramNotificationSender {
     }
 }
 
-// fn parse_string(input: &str) -> Option<(String, String, String)> {
-//     let mut endpoint = None;
-//     let mut admin = None;
-//     let mut owner = None;
+fn parse_response(input: &str) -> Option<ResponseData> {
+    let mut endpoint = None;
+    let mut admin = None;
+    let mut is_first = None;
+    let mut outage_id = None;
 
-//     for part in input.split(';') {
-//         let key_value: Vec<&str> = part.trim().split('=').collect();
-//         if key_value.len() == 2 {
-//             match key_value[0].trim() {
-//                 "endpoint" => endpoint = Some(key_value[1].trim().to_string()),
-//                 "admin" => admin = Some(key_value[1].trim().to_string()),
-//                 "owner" => owner = Some(key_value[1].trim().to_string()),
-//                 _ => return None, // Unknown key
-//             }
-//         } else {
-//             return None; // Invalid key-value pair
-//         }
-//     }
-
-//     // Check if all required values are present
-//     if let (Some(endpoint), Some(admin), Some(owner)) = (endpoint, admin, owner) {
-//         Some((endpoint, admin, owner))
-//     } else {
-//         None // Missing one or more required keys
-//     }
-// }
-
-
-impl TelegramReceiver {
-    pub fn new(b: Arc<Bot>, consumer: Arc<dyn ResponseConsumer>) -> TelegramReceiver {
-        TelegramReceiver {
-            bot: b,
-            consumer: consumer,
+    for part in input.split(';') {
+        let key_value: Vec<&str> = part.trim().split('=').collect();
+        if key_value.len() == 2 {
+            match key_value[0].trim() {
+                "endpoint" => endpoint = Some(key_value[1].trim().to_string()),
+                "admin" => admin = Some(key_value[1].trim().to_string()),
+                "is_first" => is_first = Some(key_value[1].trim().to_string()),
+                "outage_id" => outage_id = Some(key_value[1].trim().to_string()),
+                _ => return None, // Unknown key
+            }
+        } else {
+            return None; // Invalid key-value pair
         }
     }
 
-    async fn listen_for_replies(&self) {
-        teloxide::repl(self.bot.clone(), |bot: Bot, msg: Message| async move {
-            let msg = msg.reply_to_message()
-            .and_then(|msg| {
-              msg.text()
-            }).and_then(|x| {
-                x.pa
-            });
-            
-            ResponseResult::<()>::Ok(())
+    // Check if all required values are present
+    if let (Some(endpoint), Some(admin), Some(is_first), Some(outage_id)) =
+        (endpoint, admin, is_first, outage_id)
+    {
+        Some(ResponseData {
+            admin: Uuid::parse_str(admin.as_str()).unwrap(),
+            outage_id: Uuid::parse_str(outage_id.as_str()).unwrap(),
+            endpoint: endpoint,
+            is_first: is_first.parse().unwrap(),
         })
-        .await;
+    } else {
+        None // Missing one or more required keys
     }
-} 
+}
 
+impl TelegramReceiver {
+    pub fn new(b: Arc<Bot>, sender: Arc<Sender<ResponseData>>) -> TelegramReceiver {
+        TelegramReceiver {
+            bot: b,
+            sender: sender,
+        }
+    }
 
+    async fn handle_reply(
+        msg: Message,
+        bot: Bot,
+        s_s: Arc<Sender<ResponseData>>,
+    ) -> ResponseResult<()> {
+        if let Some(response) = msg
+            .reply_to_message()
+            .and_then(|msg| msg.text())
+            .and_then(|x| parse_response(x))
+        {
+            s_s.send(response).await.unwrap();
+        };
+        Ok(())
+    }
+
+    async fn listen_for_replies(&self) {
+        let handler = Update::filter_message().endpoint(
+            |bot: Bot, sender: Arc<Sender<ResponseData>>, msg: Message| async move {
+                Self::handle_reply(msg, bot, sender).await
+            },
+        );
+
+        Dispatcher::builder(self.bot.clone(), handler)
+            .dependencies(dptree::deps![self.sender.clone()])
+            .build()
+            .dispatch()
+            .await;
+    }
+}
 
 pub fn create_telegram_bot() -> Arc<Bot> {
     Arc::new(Bot::new("6886711339:AAGtn-uPuu2dHi4Y4KmJF47ovymj4XCAes4"))

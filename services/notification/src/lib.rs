@@ -41,9 +41,9 @@ pub trait NotificationSender: Send + Sync {
 }
 
 #[async_trait::async_trait]
-pub trait ResponseConsumer: Send + Sync {
+pub trait ResponseConsumer: Send + Sync  {
     // If still is down -
-    async fn consume_response(&self, response: ResponseData);
+    async fn consume_response(&mut self, response: ResponseData);
 }
 
 // pub trait ResponseListener: Send + Sync {
