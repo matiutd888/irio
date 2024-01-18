@@ -1,13 +1,14 @@
 CREATE_ADMIN_TABLE_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS admin (
     admin_id UUID PRIMARY KEY,
-    contact_id VARCHAR(255) NOT NULL
+    phone_number VARCHAR(20) NOT NULL,
+    email_address VARCHAR(255) NOT NULL
 );
 """
 
 CREATE_ENDPOINT_DATA_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS endpoint_data (
-    endpoint_id VARCHAR(255) PRIMARY KEY,
+    endpoint_id SERIAL PRIMARY KEY,
     is_down BOOLEAN NOT NULL,
     outage_id UUID,
     ntf_is_being_handled BOOLEAN NOT NULL,
