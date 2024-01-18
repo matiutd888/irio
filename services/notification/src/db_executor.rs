@@ -31,7 +31,7 @@ impl MyDBQueryExecutor {
     ntf_is_second_notification_sent,
     conf_primary_admin,
     conf_secondary_admin,
-    ntf_allowed_response_duration,
+    conf_allowed_response_duration,
     ntf_first_responded";
 
     const ENDPOINTS_TABLE_NAME: &'static str = "endpoints";

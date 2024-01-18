@@ -23,7 +23,7 @@ pub struct EndpointData {
     pub ntf_is_second_notification_sent: bool,
     pub conf_primary_admin: AdminId,
     pub conf_secondary_admin: AdminId,
-    pub ntf_allowed_response_duration: MyDuration,
+    pub conf_allowed_response_duration: MyDuration,
     pub ntf_first_responded: bool,
 }
 
