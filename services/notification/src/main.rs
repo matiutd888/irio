@@ -1,8 +1,8 @@
 mod db;
 mod db_executor;
 mod domain;
-mod notification_service;
 mod notification_sender;
+mod notification_service;
 
 use anyhow::{Ok, Result};
 

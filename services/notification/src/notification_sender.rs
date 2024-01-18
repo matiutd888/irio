@@ -17,7 +17,6 @@ pub struct TelegramNotificationSender {
     bot: Bot,
 }
 
-
 #[derive(Debug, Clone)]
 pub struct TelegramReceiver {
     bot: Bot,
@@ -130,10 +129,12 @@ pub fn create_telegram_bot() -> Bot {
     Bot::new("6886711339:AAGtn-uPuu2dHi4Y4KmJF47ovymj4XCAes4")
 }
 
-pub fn create_notification_sender_and_receiver(s: Sender<ResponseData>) -> (TelegramNotificationSender, TelegramReceiver) {
+pub fn create_notification_sender_and_receiver(
+    s: Sender<ResponseData>,
+) -> (TelegramNotificationSender, TelegramReceiver) {
     let b = create_telegram_bot();
     (
         TelegramNotificationSender::new(b.clone()),
-        TelegramReceiver::new(b, s)
+        TelegramReceiver::new(b, s),
     )
 }

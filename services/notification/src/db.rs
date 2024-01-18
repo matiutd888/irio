@@ -12,7 +12,7 @@ pub async fn get_postgres_connection() -> Result<Arc<Pool<Postgres>>> {
         "postgresql://{}:{}@{}:{}/{}",
         user, password, hostname, port, postgres_db
     );
-    
+
     // Establish a connection pool
     let pool = PgPoolOptions::new()
         .max_connections(10) // Set the maximum number of connections in the pool
