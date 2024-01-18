@@ -2,6 +2,8 @@ use crate::{
     *
 };
 
+use self::domain::{EndpointData, AdminId, OutageId, EndpointId, ContactId};
+
 #[async_trait::async_trait]
 pub trait DBQueryExecutor: Send + Sync {
     /* 

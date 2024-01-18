@@ -1,15 +1,22 @@
-use std::{env, sync::Arc};
 use anyhow::Result;
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use std::{env, sync::Arc};
 
-use scylla::{Session, SessionBuilder};
-
-pub const ENDPOINTS_TABLE_NAME: usize = 4096;
-
-
-pub async fn get_scylla_connection() -> Result<Arc<Session>> {
-    let uri = env::var("SCYLLA_URI").unwrap_or_else(|_| "127.0.0.1:9042".to_string());
-    let session: Session = SessionBuilder::new().known_node(uri).build().await?;
-    let session = Arc::new(session);
-    Ok(session)
+pub async fn get_postgres_connection() -> Result<Arc<Pool<Postgres>>> {
+    let hostname = env::var("POSTGRES_HOSTNAME").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let user = env::var("POSTGRES_USER").unwrap_or_else(|_| "postgres".to_string());
+    let port = env::var("POSTGRES_PORT").unwrap_or_else(|_| "5432".to_string());
+    let password = env::var("POSTGRES_PASSWORD").unwrap_or_else(|_| "postgres".to_string());
+    let postgres_db = env::var("POSTGRES_DB").unwrap_or_else(|_| "postgres_db".to_string());
+    let database_url = format!(
+        "postgresql://{}:{}@{}:{}/{}",
+        user, password, hostname, port, postgres_db
+    );
+    
+    // Establish a connection pool
+    let pool = PgPoolOptions::new()
+        .max_connections(5) // Set the maximum number of connections in the pool
+        .connect(&database_url)
+        .await?;
+    Ok(Arc::new(pool))
 }
-
