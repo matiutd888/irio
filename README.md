@@ -1,4 +1,4 @@
-# Project Name
+# IRIO alerting platform
 
 ## Setting Up the Database Docker Container
 
@@ -28,6 +28,8 @@
    ```bash
    python create_tables.py
    ```
+
+There's optional `--drop-table` argument which drops existing tables.
 
 ## Requirements
 Make sure to install the required Python packages by running the following command in the root directory of the project:
