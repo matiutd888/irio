@@ -29,8 +29,8 @@ impl MyDBQueryExecutor {
     ntf_is_first_notification_sent,
     ntf_first_notification_sent_timestamp,
     ntf_is_second_notification_sent,
-    ntf_primary_admin,
-    ntf_secondary_admin,
+    conf_primary_admin,
+    conf_secondary_admin,
     ntf_allowed_response_duration,
     ntf_first_responded";
 

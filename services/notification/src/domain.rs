@@ -21,8 +21,8 @@ pub struct EndpointData {
     pub ntf_is_first_notification_sent: bool,
     pub ntf_first_notification_sent_timestamp: Option<MyTime>,
     pub ntf_is_second_notification_sent: bool,
-    pub ntf_primary_admin: AdminId,
-    pub ntf_secondary_admin: AdminId,
+    pub conf_primary_admin: AdminId,
+    pub conf_secondary_admin: AdminId,
     pub ntf_allowed_response_duration: MyDuration,
     pub ntf_first_responded: bool,
 }

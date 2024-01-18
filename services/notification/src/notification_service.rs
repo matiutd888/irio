@@ -174,9 +174,9 @@ impl NotificationService {
     ) -> NotificationData {
         let is_first = !endpoint_data.ntf_first_responded;
         let admin = if is_first {
-            endpoint_data.ntf_primary_admin
+            endpoint_data.conf_primary_admin
         } else {
-            endpoint_data.ntf_secondary_admin
+            endpoint_data.conf_secondary_admin
         };
 
         let admin_data = db_executor.get_admin_data(admin.clone()).await.unwrap();
