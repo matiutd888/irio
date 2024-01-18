@@ -43,18 +43,26 @@ pub trait NotificationSender: Send + Sync {
 #[async_trait::async_trait]
 pub trait ResponseConsumer: Send + Sync {
     // If still is down -
-    async fn consume_response(response: ResponseData);
+    async fn consume_response(&self, response: ResponseData);
 }
+
+// pub trait ResponseListener: Send + Sync {
+//     async fn listen_for_responses() {
+
+//     }
+// }
 
 pub struct NotificationData {
     pub admin: AdminId,
     pub outage_id: OutageId,
     pub endpoint: EndpointId,
     pub contact_id: ContactId,
+    pub is_first: bool
 }
 
 pub struct ResponseData {
     pub admin: AdminId,
     pub outage_id: OutageId,
     pub endpoint: EndpointId,
+    pub is_first: bool
 }
