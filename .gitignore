@@ -1,0 +1,5 @@
+**/Cargo.lock
+**/.vscode
+**/target
+*venv*
+**/__pycache__/
