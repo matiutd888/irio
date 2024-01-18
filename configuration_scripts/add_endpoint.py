@@ -1,6 +1,7 @@
 import argparse
 import psycopg2
 from datetime import datetime
+import uuid
 
 def add_endpoint(cursor, endpoint_data):
     try:
@@ -30,8 +31,8 @@ def add_endpoint(cursor, endpoint_data):
             endpoint_data['ntf_is_first_notification_sent'],
             endpoint_data['ntf_first_notification_sent_timestamp'],
             endpoint_data['ntf_is_second_notification_sent'],
-            endpoint_data['conf_primary_admin'],
-            endpoint_data['conf_secondary_admin'],
+            str(endpoint_data['conf_primary_admin']),
+            str(endpoint_data['conf_secondary_admin']),
             endpoint_data['conf_allowed_response_duration'],
             endpoint_data['ntf_first_responded']
         ))
@@ -44,13 +45,11 @@ def add_endpoint(cursor, endpoint_data):
 def main():
     parser = argparse.ArgumentParser(description="Add an endpoint to the endpoint_data table.")
     parser.add_argument('--endpoint-id', type=str, required=True, help='Endpoint ID')
-    parser.add_argument('--primary-admin', type=int, required=True, help='Primary admin ID')
-    parser.add_argument('--secondary-admin', type=int, required=True, help='Secondary admin ID')
+    parser.add_argument('--primary-admin', type=uuid.UUID, required=True, help='Primary admin ID')
+    parser.add_argument('--secondary-admin', type=uuid.UUID, required=True, help='Secondary admin ID')
     parser.add_argument('--response-duration', type=str, required=True, help='Allowed response duration')
 
     args = parser.parse_args()
-
-    current_datetime = datetime.now()
 
     endpoint_data_to_add = {
         'endpoint_id': args.endpoint_id,
