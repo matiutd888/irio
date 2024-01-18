@@ -1,10 +1,19 @@
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
-use sqlx::{query, Pool, Postgres};
+use sqlx::{
+    any,
+    postgres::PgQueryResult,
+    query::{self, Query},
+    Pool, Postgres,
+};
 use std::{fmt::format, sync::Arc};
 use uuid::Uuid;
 
-use crate::{db::get_postgres_connection, domain::EndpointData, lib::DBQueryExecutor};
+use crate::{
+    db::get_postgres_connection,
+    domain::{EndpointData, EndpointId, OutageId},
+    lib::DBQueryExecutor,
+};
 
 struct MyDBQueryExecutor {
     postgres: Arc<Pool<Postgres>>,
@@ -27,7 +36,7 @@ impl MyDBQueryExecutor {
     ntf_primary_admin,
     ntf_secondary_admin,
     ntf_allowed_response_duration,
-    ntf_first_responded";
+    ntf_responded";
 
     const ENDPOINTS_TABLE_NAME: &str = "endpoints";
     const CURRENT_TIMESTAMP: &str = "CURRENT_TIMESTAMP";
@@ -88,24 +97,91 @@ impl MyDBQueryExecutor {
         select_endpoints_str
     }
 
-    async fn execute_statement_returning_endpoints(&self, query: &str) -> Result<Vec<EndpointData>> {
+    async fn execute_statement_returning_endpoints(
+        &self,
+        query: &str,
+    ) -> Result<Vec<EndpointData>> {
         sqlx::query_as::<Postgres, EndpointData>(query)
             .fetch_all(self.postgres.as_ref())
-            .await.map_err(anyhow::Error::msg)
+            .await
+            .map_err(anyhow::Error::msg)
     }
 
-    // async fn update_endpoint_to_be_handled_lwt_str() -> String {
-    //     let endpoint_id_is_equal_to = "endpoint_id = ?";
-    //     let endpoint_is_still_not_handled = Self::sql_condition_should_row_be_handled();
-    //     let update_endpoints_to_be_handled_str: String = format!(
-    //         "UPDATE {} WHERE {} IF ({})",
-    //         Self::ENDPOINTS_TABLE_NAME,
-    //         endpoint_id_is_equal_to,
-    //         endpoint_is_still_not_handled
-    //     );
-    //     log::debug!("update endpoints to be handled str query {}", update_endpoints_to_be_handled_str);
-    //     update_endpoints_to_be_handled_str
-    // }
+    async fn set_endpoint_responded(
+        &self,
+        endpoint_id: EndpointId,
+        outage_id: OutageId,
+    ) -> Result<()> {
+        let format = format!(
+            "UPDATE {} 
+            SET 
+                ntf_responded = true 
+            WHERE 
+                endpoint_id = $1 AND outage_id = $2",
+            Self::ENDPOINTS_TABLE_NAME
+        );
+        let ret = sqlx::query(&format)
+            .bind(endpoint_id)
+            .bind(outage_id)
+            .execute(self.postgres.as_ref())
+            .await
+            .map_err(anyhow::Error::msg)?;
+        log::debug!("Pgquery result = {:?}", ret);
+        Ok(())
+    }
+
+    async fn set_first_notification_sent(
+        &self,
+        endpoint_id: EndpointId,
+        outage_id: OutageId,
+    ) -> Result<()> {
+        let format = format!(
+            "UPDATE {} 
+            SET 
+                ntf_is_being_handled=false, 
+                ntf_is_being_handled_timestamp=null, 
+                ntf_is_being_handled_service_id=null,
+                ntf_is_first_notification_sent=true,
+                ntf_first_notification_sent_timestamp=CURRENT_TIMESTAMP
+            WHERE 
+                endpoint_id = $1 AND outage_id = $2",
+            Self::ENDPOINTS_TABLE_NAME
+        );
+        let ret = sqlx::query(&format)
+            .bind(endpoint_id)
+            .bind(outage_id)
+            .execute(self.postgres.as_ref())
+            .await
+            .map_err(anyhow::Error::msg)?;
+        log::debug!("Pgquery result = {:?}", ret);
+        Ok(())
+    }
+
+    async fn set_second_notification_sent(
+        &self,
+        endpoint_id: EndpointId,
+        outage_id: OutageId,
+    ) -> Result<()> {
+        let format = format!(
+            "UPDATE {} 
+            SET 
+                ntf_is_being_handled=false, 
+                ntf_is_being_handled_timestamp=null, 
+                ntf_is_being_handled_service_id=null,
+                ntf_is_second_notification_sent=true,
+            WHERE
+                endpoint_id = $1 AND outage_id = $2",
+            Self::ENDPOINTS_TABLE_NAME
+        );
+        let ret = sqlx::query(&format)
+            .bind(endpoint_id)
+            .bind(outage_id)
+            .execute(self.postgres.as_ref())
+            .await
+            .map_err(anyhow::Error::msg)?;
+        log::debug!("Pgquery result = {:?}", ret);
+        Ok(())
+    }
 }
 
 #[async_trait::async_trait]
@@ -113,7 +189,34 @@ impl DBQueryExecutor for MyDBQueryExecutor {
     async fn get_endpoints_to_process(&self) -> Result<Vec<EndpointData>> {
         let sql_query = self.sql_update_and_select_endpoints_str();
         log::debug!("sql_query to select all endpoints {}", sql_query.clone());
-        let ret = self.execute_statement_returning_endpoints(sql_query.as_str()).await; 
+        let ret = self
+            .execute_statement_returning_endpoints(sql_query.as_str())
+            .await;
         ret
+    }
+
+    async fn mark_endpoint_responded(
+        &self,
+        endpoint_id: EndpointId,
+        outage_id: OutageId,
+    ) -> Result<()> {
+        self.set_endpoint_responded(endpoint_id, outage_id).await
+    }
+
+    async fn mark_first_notification_sent(
+        &self,
+        endpoint_id: EndpointId,
+        outage_id: OutageId,
+    ) -> Result<()> {
+        self.set_first_notification_sent(endpoint_id, outage_id)
+            .await
+    }
+    async fn mark_second_notification_sent(
+        &self,
+        endpoint_id: EndpointId,
+        outage_id: OutageId,
+    ) -> Result<()> {
+        self.set_second_notification_sent(endpoint_id, outage_id)
+            .await
     }
 }

@@ -19,6 +19,10 @@ pub trait DBQueryExecutor: Send + Sync {
         Run LWT to update all the nodes if they are not handled already and are not down. Say that they are handled.
     */
     async fn get_endpoints_to_process(& self) -> Result<Vec<EndpointData>>;
+
+    async fn mark_first_notification_sent(&self, endpoint_id: EndpointId, outage_id: OutageId) -> Result<()>;
+    async fn mark_second_notification_sent(&self, endpoint_id: EndpointId, outage_id: OutageId) -> Result<()>;
+    async fn mark_endpoint_responded(&self, endpoint_id: EndpointId, outage_id: OutageId) -> Result<()>;
 }
 
 // Send notification to given
