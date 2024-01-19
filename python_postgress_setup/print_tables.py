@@ -1,4 +1,5 @@
 import psycopg2
+import os
 
 def get_all_tables(cursor):
     cursor.execute("""
@@ -22,9 +23,9 @@ def main():
     db_params = {
         'host': 'localhost',
         'port': 5432,
-        'database': 'alerting_platform_db',
-        'user': 'zolwiczek',
-        'password': 'kaczusia'
+        'database': os.environ["POSTGRES_DB"],
+        'user': os.environ["POSTGRES_USER"],
+        'password': os.environ["POSTGRES_PASSWORD"]
     }
 
     db_connection = psycopg2.connect(**db_params)
