@@ -137,7 +137,7 @@ impl NotificationService {
                 log::error!("Errror getting endpoints to process: {:?}", error);
             } else {
                 let v = x.unwrap();
-                log::debug!("Got {:?} dead endpoints!", v.len());
+                log::info!("Got {:?} dead endpoints!", v.len());
                 let db_executor = self.db_executor.clone();
                 let sender = self.ntf_sender.clone();
 

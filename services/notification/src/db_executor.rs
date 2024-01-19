@@ -35,8 +35,8 @@ impl MyDBQueryExecutor {
     conf_allowed_response_duration,
     ntf_first_responded";
 
-    const ENDPOINTS_TABLE_NAME: &'static str = "endpoints";
-    const ADMINS_TABLE_NAME: &'static str = "admins";
+    const ENDPOINTS_TABLE_NAME: &'static str = "endpoints_data";
+    const ADMINS_TABLE_NAME: &'static str = "admin";
     const CURRENT_TIMESTAMP: &'static str = "CURRENT_TIMESTAMP";
 
     pub async fn new(
@@ -77,7 +77,7 @@ impl MyDBQueryExecutor {
 
     fn sql_update_row_is_handled_by_me(&self) -> String {
         format!(
-            "ntf_is_being_handled = true, ntf_is_being_handled_timestamp = {}, ntf_is_being_handled_service_id = {}", Self::CURRENT_TIMESTAMP, self.service_id
+            "ntf_is_being_handled = true, ntf_is_being_handled_timestamp = {}, ntf_is_being_handled_service_id = '{}'", Self::CURRENT_TIMESTAMP, self.service_id
         )
     }
 
@@ -91,7 +91,7 @@ impl MyDBQueryExecutor {
                 Self::ENDPOINT_DB_LAYOUT
             )
         };
-        log::debug!("select endpoints str query {}", select_endpoints_str);
+        log::info!("select endpoints str query {}", select_endpoints_str);
         select_endpoints_str
     }
 
@@ -141,7 +141,7 @@ impl MyDBQueryExecutor {
             .execute(self.postgres.as_ref())
             .await
             .map_err(anyhow::Error::msg)?;
-        log::debug!("Pgquery result = {:?}", ret);
+        log::info!("Pgquery result = {:?}", ret);
         Ok(())
     }
 
@@ -168,7 +168,7 @@ impl MyDBQueryExecutor {
             .execute(self.postgres.as_ref())
             .await
             .map_err(anyhow::Error::msg)?;
-        log::debug!("Pgquery result = {:?}", ret);
+        log::info!("Pgquery result = {:?}", ret);
         Ok(())
     }
 
@@ -194,7 +194,7 @@ impl MyDBQueryExecutor {
             .execute(self.postgres.as_ref())
             .await
             .map_err(anyhow::Error::msg)?;
-        log::debug!("Pgquery result = {:?}", ret);
+        log::info!("Pgquery result = {:?}", ret);
         Ok(())
     }
 }
@@ -203,7 +203,7 @@ impl MyDBQueryExecutor {
 impl DBQueryExecutor for MyDBQueryExecutor {
     async fn get_endpoints_to_process(&self) -> Result<Vec<EndpointData>> {
         let sql_query = self.sql_update_and_select_endpoints_str();
-        log::debug!("sql_query to select all endpoints {}", sql_query.clone());
+        log::info!("sql_query to select all endpoints {}", sql_query.clone());
         let ret = self
             .execute_statement_returning_endpoints(sql_query.as_str())
             .await;
