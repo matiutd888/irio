@@ -10,7 +10,10 @@ use teloxide::prelude::*;
 use tokio::sync::mpsc::Sender;
 use uuid::Uuid;
 
-use crate::notification_service::{NotificationData, NotificationSender, ResponseData};
+use crate::{
+    domain::EndpointId,
+    notification_service::{NotificationData, NotificationSender, ResponseData},
+};
 
 #[derive(Debug, Clone)]
 pub struct TelegramNotificationSender {
@@ -79,7 +82,7 @@ fn parse_response(input: &str) -> Option<ResponseData> {
         Some(ResponseData {
             admin: Uuid::parse_str(admin.as_str()).unwrap(),
             outage_id: Uuid::parse_str(outage_id.as_str()).unwrap(),
-            endpoint: endpoint,
+            endpoint: endpoint.parse::<EndpointId>().unwrap(),
             is_first: is_first.parse().unwrap(),
         })
     } else {

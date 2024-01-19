@@ -21,6 +21,7 @@ pub struct MyDBQueryExecutor {
 impl MyDBQueryExecutor {
     const ENDPOINT_DB_LAYOUT: &'static str = "
     endpoint_id,
+    http_address,
     is_down,
     outage_id,
     ntf_is_being_handled,
