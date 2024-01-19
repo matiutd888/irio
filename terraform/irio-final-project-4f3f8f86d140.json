@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "irio-final-project",
+  "private_key_id": "4f3f8f86d1403365321e88f010145738331e8fe1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDlZm7SFCUC5Tt3\noWh7HuSJ3zMR05vwv6xzpZljYz4TI3vnRwCrEAM79bQtYP4MyWBAL4grI+gr14XF\niY3n4NfwtjsmOZUBiB41k1yn8O5Tfrf9J0iJWAu2ox9CuehuzHefM0IxO8yWoAnx\nJ2WpL7+uB7dYVEWJ9ELz/6kDQ7jYrr5QrQuVlceCPq0976kyTZoJkE7hPLU9W8VL\nJHevsibYx/dc43lHFCB3sLVAKf1v+M6CJPvj5F48gAVJEDps9OymKt7XrSXdSEeL\nnSM1635fo7dm4rwMTUYSRoYU+P+IQT/K87erE+rTvINPZrIPIIpxZCJvGgVEamuH\n5jDYh4J9AgMBAAECggEADf76avHUskEHKEzeQYjIe8r05DULchxXqrSjT6eJ7YQA\nNsOjvEwdTma2x///cAtHRpM/1RX7P9WF8V/rmwaiVirgH/xqZW4HHdCwWgS+nbSB\nCD6B0/Ndv5ZjPWB3WG88Kyfm9XcHC/eWs7JqJvDlWnpZCtgVaA3Rme5ywuK6X+nn\n1NQfKFodZMt9fbXBESSpzzjcfJq3Uc/ub+O2G5aEfKZEBsyl8o1IGSqzhlVMmxu/\n2FpgGX3rsMSPvLyYb3q3VNDgBtkz5C2X6U03QU9JSgfyRu5TUZxEO/vxr12p0IYB\nxYsIFVbR6wnGPcw/Fd+wo1m83P3AzynRO4CaQfgcxwKBgQD8vDuws9Z4t4L5KWqS\ntoQm7A3EQQR9e/vSng0TjCGOybGmbFjcpUm5HobcSYsTSdA/rHS/NuI+lryAX/To\nLy2EoHWtzVH7Bf10R9o7ld0Ngdcq63Yot9hMa55JicNSsX35A9ZAioJcbkCvcwWn\n7W5dAeIDENTWICeay4m/EmF0HwKBgQDoXQhz2lXHzZb3pQnS6atchaqC2WFLR+e6\nFyM8XGDLlmrx0+laAJBCokJ8B8Ip7EIK3+sLzU6e4hcaKdiATUNWQOqxlhsYkdv2\nQrJiCZjrIccF4SbWXf21WnUJ2VQjl2wnJZAoAHd7Y+9PGjoe1fAetRw/JDmby7Ur\nPsngd4kV4wKBgQD8t0wIeQswUm/Irb0/Tvn94XQylcDjqSI5jIkOzsSPfucAvr5s\ng2qgjQHVLETA2MI/qTZkLYE1jIyY4VqHAQXG5JxHWlNraqXxrBdwFX6gjwCUjjXs\nqUjDwajZZ8PD4G9SnJ+UkeugeS59QcqaDDSbE9LnteDc6/IuOvBV+w8viQKBgQDT\n9mHKhQWxEMrBNwzCGCQYb1o+qJuHN52b9JVQ75fgv2LpHH0Ge/McxbVOPSmSYpFQ\nKDjaeDta1jVqyXdUeqaNXQR6YMpw3EVB3E+q/MRA4XwS0fNCo1TXhR+0j0qgePXQ\ntARPaTWVGnFnwC36iP/UkzOkKaBfjTDDtTAkkgY8LwKBgDAIx65LkiBDYXw4ot+q\nj+erInLfx7m/BTZ1fSDJYW0S4oQiYXB7iC9n7iqadTd1+6CjC3+zAEWb5NDAyt5d\nadHViqIllNLvuyQWzgBMAOO9EGStMcVegzKOlFq61KkRKVSKCi7DYVsSrQGMetO5\nR94T3wN1uBI641J0Pp86xNq2\n-----END PRIVATE KEY-----\n",
+  "client_email": "irio-final-project-editor@irio-final-project.iam.gserviceaccount.com",
+  "client_id": "102201391184752558766",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/irio-final-project-editor%40irio-final-project.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
