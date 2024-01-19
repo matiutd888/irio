@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 use sqlx::{postgres::types::PgInterval, FromRow};
 use uuid::Uuid;
 
-pub type AdminId = Uuid;
+pub type AdminId = String;
 pub type ContactId = String;
 pub type EndpointId = i32;
 pub type OutageId = Uuid;

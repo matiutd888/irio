@@ -84,7 +84,7 @@ fn parse_response(input: &str) -> Option<ResponseData> {
         (endpoint, admin, is_first, outage_id)
     {
         Some(ResponseData {
-            admin: Uuid::parse_str(admin.as_str()).unwrap(),
+            admin: admin,
             outage_id: Uuid::parse_str(outage_id.as_str()).unwrap(),
             endpoint: endpoint.parse::<EndpointId>().unwrap(),
             is_first: is_first.parse().unwrap(),

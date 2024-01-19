@@ -1,6 +1,6 @@
 CREATE_ADMIN_TABLE_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS admin (
-    admin_id SERIAL PRIMARY KEY,
+    admin_id VARCHAR(255) PRIMARY KEY,
     telegram_telegram_contact_id VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     email_address VARCHAR(255) NOT NULL
@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS endpoint_data (
     ntf_is_first_notification_sent BOOLEAN NOT NULL,
     ntf_first_notification_sent_timestamp TIMESTAMP,
     ntf_is_second_notification_sent BOOLEAN NOT NULL,
-    conf_primary_admin INT REFERENCES admin(admin_id) NOT NULL,
-    conf_secondary_admin INT REFERENCES admin(admin_id) NOT NULL,
+    conf_primary_admin VARCHAR(255) REFERENCES admin(admin_id) NOT NULL,
+    conf_secondary_admin VARCHAR(255) REFERENCES admin(admin_id) NOT NULL,
     conf_allowed_response_duration INTERVAL NOT NULL,
     ntf_first_responded BOOLEAN NOT NULL
 );

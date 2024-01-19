@@ -16,7 +16,7 @@ def main():
     args = parser.parse_args()
 
     db_params = {
-        'host': 'localhost',
+        'host': os.environ["POSTGRES_HOSTNAME"],
         'port': int(os.environ["POSTGRES_PORT"]),
         'database': os.environ["POSTGRES_DB"],
         'user': os.environ["POSTGRES_USER"],
