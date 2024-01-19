@@ -22,6 +22,7 @@ def add_endpoint(cursor, endpoint_data):
                 conf_allowed_response_duration,
                 ntf_first_responded
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING endpoint_id
         """, (
             endpoint_data['http_address'],
             endpoint_data['is_down'],
@@ -38,7 +39,9 @@ def add_endpoint(cursor, endpoint_data):
             endpoint_data['ntf_first_responded']
         ))
 
-        print("Endpoint added successfully!")
+        endpoint_id = cursor.fetchone()[0]
+
+        print(f"Endpoint {endpoint_id} added successfully!")
 
     except Exception as e:
         print(f"Error adding endpoint: {e}")
@@ -46,8 +49,8 @@ def add_endpoint(cursor, endpoint_data):
 def main():
     parser = argparse.ArgumentParser(description="Add an endpoint to the endpoint_data table.")
     parser.add_argument('--http-address', type=str, required=True, help='HTTP address of the endpoint')
-    parser.add_argument('--primary-admin', type=int, required=True, help='Primary admin ID')
-    parser.add_argument('--secondary-admin', type=int, required=True, help='Secondary admin ID')
+    parser.add_argument('--primary-admin', type=str, required=True, help='Primary admin ID')
+    parser.add_argument('--secondary-admin', type=str, required=True, help='Secondary admin ID')
     parser.add_argument('--response-duration', type=str, required=True, help='Allowed response duration')
 
     args = parser.parse_args()
