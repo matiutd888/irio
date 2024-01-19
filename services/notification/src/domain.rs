@@ -10,7 +10,7 @@ pub type MyTime = NaiveDateTime;
 pub type MyDuration = PgInterval;
 pub type ServiceInstanceId = Uuid;
 
-#[derive(Debug, FromRow)]
+#[derive(Debug, FromRow, Clone)]
 pub struct EndpointData {
     pub endpoint_id: EndpointId,
     pub http_address: String,

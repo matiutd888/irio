@@ -35,8 +35,8 @@ impl MyDBQueryExecutor {
     conf_allowed_response_duration,
     ntf_first_responded";
 
-    const ENDPOINTS_TABLE_NAME: &'static str = "endpoints";
-    const ADMINS_TABLE_NAME: &'static str = "admins";
+    const ENDPOINTS_TABLE_NAME: &'static str = "endpoint_data";
+    const ADMINS_TABLE_NAME: &'static str = "admin";
     const CURRENT_TIMESTAMP: &'static str = "CURRENT_TIMESTAMP";
 
     pub async fn new(
@@ -60,7 +60,7 @@ impl MyDBQueryExecutor {
                 AND (
                     (NOT ntf_is_first_notification_sent) 
                     OR (
-                        (ntf_first_notification_sent_timestamp + ntf_allowed_response_time < {})
+                        (ntf_first_notification_sent_timestamp + conf_allowed_response_duration < {})
                         AND
                         (NOT ntf_is_second_notification_sent)
                     )
@@ -77,7 +77,7 @@ impl MyDBQueryExecutor {
 
     fn sql_update_row_is_handled_by_me(&self) -> String {
         format!(
-            "ntf_is_being_handled = true, ntf_is_being_handled_timestamp = {}, ntf_is_being_handled_service_id = {}", Self::CURRENT_TIMESTAMP, self.service_id
+            "ntf_is_being_handled = true, ntf_is_being_handled_timestamp = {}, ntf_is_being_handled_service_id = '{}'", Self::CURRENT_TIMESTAMP, self.service_id
         )
     }
 
@@ -91,7 +91,6 @@ impl MyDBQueryExecutor {
                 Self::ENDPOINT_DB_LAYOUT
             )
         };
-        log::debug!("select endpoints str query {}", select_endpoints_str);
         select_endpoints_str
     }
 
@@ -141,7 +140,7 @@ impl MyDBQueryExecutor {
             .execute(self.postgres.as_ref())
             .await
             .map_err(anyhow::Error::msg)?;
-        log::debug!("Pgquery result = {:?}", ret);
+        log::info!("Pgquery result = {:?}", ret);
         Ok(())
     }
 
@@ -168,7 +167,7 @@ impl MyDBQueryExecutor {
             .execute(self.postgres.as_ref())
             .await
             .map_err(anyhow::Error::msg)?;
-        log::debug!("Pgquery result = {:?}", ret);
+        log::info!("Pgquery result = {:?}", ret);
         Ok(())
     }
 
@@ -183,7 +182,7 @@ impl MyDBQueryExecutor {
                 ntf_is_being_handled=false, 
                 ntf_is_being_handled_timestamp=null, 
                 ntf_is_being_handled_service_id=null,
-                ntf_is_second_notification_sent=true,
+                ntf_is_second_notification_sent=true
             WHERE
                 endpoint_id = $1 AND outage_id = $2",
             Self::ENDPOINTS_TABLE_NAME
@@ -194,7 +193,7 @@ impl MyDBQueryExecutor {
             .execute(self.postgres.as_ref())
             .await
             .map_err(anyhow::Error::msg)?;
-        log::debug!("Pgquery result = {:?}", ret);
+        log::info!("Pgquery result = {:?}", ret);
         Ok(())
     }
 }

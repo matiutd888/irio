@@ -27,6 +27,16 @@ pub struct TelegramReceiver {
 }
 
 impl TelegramNotificationSender {
+    fn prepare_telegram_msg(msg: String) -> String {
+        msg
+        .replace("_", "\\_")
+        .replace("*", "\\*")
+        .replace("[", "\\[")
+        .replace("`", "\\`")
+        .replace("=", "\\=")
+        .replace("-", "\\-")
+    }
+
     pub fn new(b: Bot) -> TelegramNotificationSender {
         TelegramNotificationSender { bot: b }
     }
@@ -36,29 +46,37 @@ impl TelegramNotificationSender {
 impl NotificationSender for TelegramNotificationSender {
     async fn send_notification(&self, x: NotificationData) {
         let text = format!(
-            "endpoint={};outage={};is_first={};admin={}",
-            x.endpoint, x.outage_id, x.is_first, x.admin
+            "endpoint={};outage={};is_first={};admin={};http_address={}",
+            x.endpoint, x.outage_id, x.is_first, x.admin, x.http_address
         );
-        log::info!("Attempting to concat {} by chat {}", x.admin, x.telegram_contact_id);
+        log::info!(
+            "Attempting to concat {} by chat {}",
+            x.admin,
+            x.telegram_contact_id
+        );
         let user_id = UserId(x.telegram_contact_id.parse().unwrap());
         match self
             .bot
-            .send_message(user_id, text)
+            .send_message(user_id, Self::prepare_telegram_msg(text))
             .parse_mode(ParseMode::MarkdownV2)
             .send()
             .await
         {
-            Ok(_) => println!("Message sent successfully"),
-            Err(e) => eprintln!("Failed to send message: {}", e),
+            Ok(_) => log::info!("Message sent successfully"),
+            Err(e) => log::error!("Failed to send message: {}", e),
         }
     }
 }
+
+
 
 fn parse_response(input: &str) -> Option<ResponseData> {
     let mut endpoint = None;
     let mut admin = None;
     let mut is_first = None;
     let mut outage_id = None;
+
+    log::info!("Received {} telegram response", input);
 
     for part in input.split(';') {
         let key_value: Vec<&str> = part.trim().split('=').collect();
@@ -67,14 +85,15 @@ fn parse_response(input: &str) -> Option<ResponseData> {
                 "endpoint" => endpoint = Some(key_value[1].trim().to_string()),
                 "admin" => admin = Some(key_value[1].trim().to_string()),
                 "is_first" => is_first = Some(key_value[1].trim().to_string()),
-                "outage_id" => outage_id = Some(key_value[1].trim().to_string()),
-                _ => return None, // Unknown key
+                "outage" => outage_id = Some(key_value[1].trim().to_string()),
+                _ => (), // Unknown key
             }
         } else {
-            return None; // Invalid key-value pair
+            () // Invalid key-value pair
         }
     }
-
+    log::debug!("Response after parse {:?} {:?} {:?} {:?}", endpoint, admin, is_first, outage_id);
+    
     // Check if all required values are present
     if let (Some(endpoint), Some(admin), Some(is_first), Some(outage_id)) =
         (endpoint, admin, is_first, outage_id)
