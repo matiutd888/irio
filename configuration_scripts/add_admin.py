@@ -6,8 +6,8 @@ def add_admin_data(cursor, admin_data):
     try:
         for admin in admin_data:
             cursor.execute(
-                "INSERT INTO admin (telegram_contact_id, phone_number, email_address) VALUES (%s, %s, %s) RETURNING admin_id",
-                (admin['telegram_contact_id'], admin['phone_number'], admin['email_address'])
+                "INSERT INTO admin (admin_id, telegram_contact_id, phone_number, email_address) VALUES (%s, %s, %s, %s) RETURNING admin_id",
+                (admin['admin_id'], admin['telegram_contact_id'], admin['phone_number'], admin['email_address'])
             )
             admin_id = cursor.fetchone()[0]
 
@@ -18,17 +18,18 @@ def add_admin_data(cursor, admin_data):
 
 def main():
     parser = argparse.ArgumentParser(description="Add a single admin to the admin table.")
-    parser.add_argument('--contact-id', required=True, help='Contact ID of the admin')
+    parser.add_argument('--admin-id', required=True, help='Id of admin')
+    parser.add_argument('--telegram-contact-id', required=True, help='telegram contact ID of the admin')
     parser.add_argument('--phone', required=True, help='Phone number of the admin')
     parser.add_argument('--email', required=True, help='Email address of the admin')
     args = parser.parse_args()
 
     admin_data_to_add = [
-        {'telegram_contact_id': args.telegram_contact_id, 'phone_number': args.phone, 'email_address': args.email}
+        {'admin_id': args.admin_id, 'telegram_contact_id': args.telegram_contact_id, 'phone_number': args.phone, 'email_address': args.email}
     ]
 
     db_params = {
-        'host': 'localhost',
+        'host': os.environ["POSTGRES_HOSTNAME"],
         'port': int(os.environ["POSTGRES_PORT"]),
         'database': os.environ["POSTGRES_DB"],
         'user': os.environ["POSTGRES_USER"],
