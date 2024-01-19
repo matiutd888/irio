@@ -3,8 +3,9 @@ mod db_executor;
 mod domain;
 mod notification_sender;
 mod notification_service;
+use std::io::Write;
 
-use log::{info, LevelFilter};
+use log::{LevelFilter};
 
 use anyhow::{Ok, Result};
 

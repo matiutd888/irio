@@ -39,7 +39,7 @@ impl NotificationSender for TelegramNotificationSender {
             "endpoint={};outage={};is_first={};admin={}",
             x.endpoint, x.outage_id, x.is_first, x.admin
         );
-
+        log::info!("Attempting to concat {} by chat {}", x.admin, x.contact_id);
         let user_id = UserId(x.contact_id.parse().unwrap());
         match self
             .bot
