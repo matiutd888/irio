@@ -70,7 +70,7 @@ def main():
 
     db_params = {
         'host': 'localhost',
-        'port': 5432,
+        'port': int(os.environ["POSTGRES_PORT"]),
         'database': os.environ["POSTGRES_DB"],
         'user': os.environ["POSTGRES_USER"],
         'password': os.environ["POSTGRES_PASSWORD"]

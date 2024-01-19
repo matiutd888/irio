@@ -1,3 +1,4 @@
 export POSTGRES_USER=zolwiczek
 export POSTGRES_PASSWORD=kaczusia
 export POSTGRES_DB=alerting_platform_db
+export POSTGRES_PORT=5432
