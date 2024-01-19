@@ -46,8 +46,8 @@ impl TelegramNotificationSender {
 impl NotificationSender for TelegramNotificationSender {
     async fn send_notification(&self, x: NotificationData) {
         let text = format!(
-            "endpoint={};outage={};is_first={};admin={}",
-            x.endpoint, x.outage_id, x.is_first, x.admin
+            "endpoint={};outage={};is_first={};admin={};http_address={}",
+            x.endpoint, x.outage_id, x.is_first, x.admin, x.http_address
         );
         log::info!(
             "Attempting to concat {} by chat {}",
@@ -85,14 +85,15 @@ fn parse_response(input: &str) -> Option<ResponseData> {
                 "endpoint" => endpoint = Some(key_value[1].trim().to_string()),
                 "admin" => admin = Some(key_value[1].trim().to_string()),
                 "is_first" => is_first = Some(key_value[1].trim().to_string()),
-                "outage_id" => outage_id = Some(key_value[1].trim().to_string()),
-                _ => return None, // Unknown key
+                "outage" => outage_id = Some(key_value[1].trim().to_string()),
+                _ => (), // Unknown key
             }
         } else {
-            return None; // Invalid key-value pair
+            () // Invalid key-value pair
         }
     }
-
+    log::debug!("Response after parse {:?} {:?} {:?} {:?}", endpoint, admin, is_first, outage_id);
+    
     // Check if all required values are present
     if let (Some(endpoint), Some(admin), Some(is_first), Some(outage_id)) =
         (endpoint, admin, is_first, outage_id)

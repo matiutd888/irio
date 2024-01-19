@@ -71,6 +71,7 @@ pub struct NotificationData {
     pub endpoint: EndpointId,
     pub telegram_contact_id: ContactId,
     pub is_first: bool,
+    pub http_address: String
 }
 
 pub struct ResponseData {
@@ -190,6 +191,7 @@ impl NotificationService {
             endpoint: endpoint_data.endpoint_id,
             telegram_contact_id: admin_data.telegram_contact_id,
             is_first: is_first,
+            http_address: endpoint_data.http_address
         }
     }
 
@@ -232,9 +234,10 @@ impl NotificationService {
                         .await;
                     if x.is_ok() {
                         log::info!(
-                            "marked endpoint: {}, outage: {:?} ",
+                            "endpoint: {}, outage: {:?} marked as 'responded' by admin {}",
                             response_data.endpoint,
-                            response_data.outage_id
+                            response_data.outage_id,
+                            response_data.admin
                         );
                     } else {
                         log::error!(
