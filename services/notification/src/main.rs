@@ -12,7 +12,7 @@ use anyhow::{Ok, Result};
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::Builder::new()
-        .filter_level(LevelFilter::max())
+        .filter_level(LevelFilter::Info)
         .format(|buf, record| {
             writeln!(
                 buf,

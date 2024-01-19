@@ -27,6 +27,16 @@ pub struct TelegramReceiver {
 }
 
 impl TelegramNotificationSender {
+    fn prepare_telegram_msg(msg: String) -> String {
+        msg
+        .replace("_", "\\_")
+        .replace("*", "\\*")
+        .replace("[", "\\[")
+        .replace("`", "\\`")
+        .replace("=", "\\=")
+        .replace("-", "\\-")
+    }
+
     pub fn new(b: Bot) -> TelegramNotificationSender {
         TelegramNotificationSender { bot: b }
     }
@@ -47,22 +57,26 @@ impl NotificationSender for TelegramNotificationSender {
         let user_id = UserId(x.telegram_contact_id.parse().unwrap());
         match self
             .bot
-            .send_message(user_id, text)
+            .send_message(user_id, Self::prepare_telegram_msg(text))
             .parse_mode(ParseMode::MarkdownV2)
             .send()
             .await
         {
-            Ok(_) => println!("Message sent successfully"),
-            Err(e) => eprintln!("Failed to send message: {}", e),
+            Ok(_) => log::info!("Message sent successfully"),
+            Err(e) => log::error!("Failed to send message: {}", e),
         }
     }
 }
+
+
 
 fn parse_response(input: &str) -> Option<ResponseData> {
     let mut endpoint = None;
     let mut admin = None;
     let mut is_first = None;
     let mut outage_id = None;
+
+    log::info!("Received {} telegram response", input);
 
     for part in input.split(';') {
         let key_value: Vec<&str> = part.trim().split('=').collect();

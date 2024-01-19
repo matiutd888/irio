@@ -35,7 +35,7 @@ impl MyDBQueryExecutor {
     conf_allowed_response_duration,
     ntf_first_responded";
 
-    const ENDPOINTS_TABLE_NAME: &'static str = "endpoints_data";
+    const ENDPOINTS_TABLE_NAME: &'static str = "endpoint_data";
     const ADMINS_TABLE_NAME: &'static str = "admin";
     const CURRENT_TIMESTAMP: &'static str = "CURRENT_TIMESTAMP";
 
@@ -60,7 +60,7 @@ impl MyDBQueryExecutor {
                 AND (
                     (NOT ntf_is_first_notification_sent) 
                     OR (
-                        (ntf_first_notification_sent_timestamp + ntf_allowed_response_time < {})
+                        (ntf_first_notification_sent_timestamp + conf_allowed_response_duration < {})
                         AND
                         (NOT ntf_is_second_notification_sent)
                     )
@@ -91,7 +91,6 @@ impl MyDBQueryExecutor {
                 Self::ENDPOINT_DB_LAYOUT
             )
         };
-        log::info!("select endpoints str query {}", select_endpoints_str);
         select_endpoints_str
     }
 
@@ -183,7 +182,7 @@ impl MyDBQueryExecutor {
                 ntf_is_being_handled=false, 
                 ntf_is_being_handled_timestamp=null, 
                 ntf_is_being_handled_service_id=null,
-                ntf_is_second_notification_sent=true,
+                ntf_is_second_notification_sent=true
             WHERE
                 endpoint_id = $1 AND outage_id = $2",
             Self::ENDPOINTS_TABLE_NAME
@@ -203,7 +202,7 @@ impl MyDBQueryExecutor {
 impl DBQueryExecutor for MyDBQueryExecutor {
     async fn get_endpoints_to_process(&self) -> Result<Vec<EndpointData>> {
         let sql_query = self.sql_update_and_select_endpoints_str();
-        log::info!("sql_query to select all endpoints {}", sql_query.clone());
+        log::debug!("sql_query to select all endpoints {}", sql_query.clone());
         let ret = self
             .execute_statement_returning_endpoints(sql_query.as_str())
             .await;
