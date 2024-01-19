@@ -5,8 +5,8 @@ def add_admin_data(cursor, admin_data):
     try:
         for admin in admin_data:
             cursor.execute(
-                "INSERT INTO admin (contact_id, phone_number, email_address) VALUES (%s, %s, %s) RETURNING admin_id",
-                (admin['contact_id'], admin['phone_number'], admin['email_address'])
+                "INSERT INTO admin (telegram_contact_id, phone_number, email_address) VALUES (%s, %s, %s) RETURNING admin_id",
+                (admin['telegram_contact_id'], admin['phone_number'], admin['email_address'])
             )
             admin_id = cursor.fetchone()[0]
 
@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
 
     admin_data_to_add = [
-        {'contact_id': args.contact_id, 'phone_number': args.phone, 'email_address': args.email}
+        {'telegram_contact_id': args.telegram_contact_id, 'phone_number': args.phone, 'email_address': args.email}
     ]
 
     db_params = {

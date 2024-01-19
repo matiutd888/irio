@@ -31,7 +31,7 @@ pub struct EndpointData {
 #[derive(Debug, FromRow, Clone)]
 pub struct Admin {
     pub admin_id: AdminId,
-    pub contact_id: ContactId,
+    pub telegram_contact_id: ContactId,
     pub phone_number: String,
     pub email_address: String,
 }

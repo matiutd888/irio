@@ -1,7 +1,7 @@
 CREATE_ADMIN_TABLE_DB_QUERY = """
 CREATE TABLE IF NOT EXISTS admin (
     admin_id SERIAL PRIMARY KEY,
-    contact_id VARCHAR(255) NOT NULL,
+    telegram_telegram_contact_id VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     email_address VARCHAR(255) NOT NULL
 );

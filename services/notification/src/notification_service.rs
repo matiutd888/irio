@@ -69,7 +69,7 @@ pub struct NotificationData {
     pub admin: AdminId,
     pub outage_id: OutageId,
     pub endpoint: EndpointId,
-    pub contact_id: ContactId,
+    pub telegram_contact_id: ContactId,
     pub is_first: bool,
 }
 
@@ -164,7 +164,7 @@ impl NotificationService {
     //     pub admin: AdminId,
     //     pub outage_id: OutageId,
     //     pub endpoint: EndpointId,
-    //     pub contact_id: ContactId,
+    //     pub telegram_contact_id: ContactId,
     //     pub is_first: bool,
     // }
 
@@ -185,7 +185,7 @@ impl NotificationService {
             admin: admin_data.admin_id,
             outage_id: endpoint_data.outage_id.unwrap(),
             endpoint: endpoint_data.endpoint_id,
-            contact_id: admin_data.contact_id,
+            telegram_contact_id: admin_data.telegram_contact_id,
             is_first: is_first,
         }
     }
