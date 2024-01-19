@@ -10,7 +10,10 @@ use teloxide::prelude::*;
 use tokio::sync::mpsc::Sender;
 use uuid::Uuid;
 
-use crate::notification_service::{NotificationData, NotificationSender, ResponseData};
+use crate::{
+    domain::EndpointId,
+    notification_service::{NotificationData, NotificationSender, ResponseData},
+};
 
 #[derive(Debug, Clone)]
 pub struct TelegramNotificationSender {
@@ -36,8 +39,8 @@ impl NotificationSender for TelegramNotificationSender {
             "endpoint={};outage={};is_first={};admin={}",
             x.endpoint, x.outage_id, x.is_first, x.admin
         );
-
-        let user_id = UserId(x.contact_id.parse().unwrap());
+        log::info!("Attempting to concat {} by chat {}", x.admin, x.telegram_contact_id);
+        let user_id = UserId(x.telegram_contact_id.parse().unwrap());
         match self
             .bot
             .send_message(user_id, text)
@@ -79,7 +82,7 @@ fn parse_response(input: &str) -> Option<ResponseData> {
         Some(ResponseData {
             admin: Uuid::parse_str(admin.as_str()).unwrap(),
             outage_id: Uuid::parse_str(outage_id.as_str()).unwrap(),
-            endpoint: endpoint,
+            endpoint: endpoint.parse::<EndpointId>().unwrap(),
             is_first: is_first.parse().unwrap(),
         })
     } else {

@@ -1,3 +1,4 @@
+import os
 import argparse
 import psycopg2
 from datetime import datetime
@@ -69,10 +70,10 @@ def main():
 
     db_params = {
         'host': 'localhost',
-        'port': 5432,
-        'database': 'alerting_platform_db',
-        'user': 'zolwiczek',
-        'password': 'kaczusia'
+        'port': int(os.environ["POSTGRES_PORT"]),
+        'database': os.environ["POSTGRES_DB"],
+        'user': os.environ["POSTGRES_USER"],
+        'password': os.environ["POSTGRES_PASSWORD"]
     }
 
     with psycopg2.connect(**db_params) as connection:
