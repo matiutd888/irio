@@ -8,7 +8,9 @@ cd ../../notification_dockerfile
 cp ../target/release/notification .
 
 #create docker image of it
-sudo docker build -t notification-service-image:latest .
+#sudo docker build -t notification-service-image:latest .
+sudo docker build -t gcr.io/irio-final-project/notification-service-image:latest .
+sudo docker push gcr.io/irio-final-project/notification-service-image:latest
 
 #cleanup
 rm -f notification
