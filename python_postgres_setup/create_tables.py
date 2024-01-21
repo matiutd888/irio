@@ -1,3 +1,4 @@
+import os
 import argparse
 import psycopg2
 from schemas import DATABASE_SETUP_QUERIES
@@ -15,11 +16,11 @@ def main():
     args = parser.parse_args()
 
     db_params = {
-        'host': 'localhost',
-        'port': 5432,
-        'database': 'alerting_platform_db',
-        'user': 'zolwiczek',
-        'password': 'kaczusia'
+        'host': os.environ["POSTGRES_HOSTNAME"],
+        'port': int(os.environ["POSTGRES_PORT"]),
+        'database': os.environ["POSTGRES_DB"],
+        'user': os.environ["POSTGRES_USER"],
+        'password': os.environ["POSTGRES_PASSWORD"]
     }
 
     db_connection = psycopg2.connect(**db_params)

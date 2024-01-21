@@ -2,17 +2,18 @@ use chrono::NaiveDateTime;
 use sqlx::{postgres::types::PgInterval, FromRow};
 use uuid::Uuid;
 
-pub type AdminId = Uuid;
+pub type AdminId = String;
 pub type ContactId = String;
-pub type EndpointId = String;
+pub type EndpointId = i32;
 pub type OutageId = Uuid;
 pub type MyTime = NaiveDateTime;
 pub type MyDuration = PgInterval;
 pub type ServiceInstanceId = Uuid;
 
-#[derive(Debug, FromRow)]
+#[derive(Debug, FromRow, Clone)]
 pub struct EndpointData {
     pub endpoint_id: EndpointId,
+    pub http_address: String,
     pub is_down: bool,
     pub outage_id: Option<OutageId>,
     pub ntf_is_being_handled: bool,
@@ -30,5 +31,7 @@ pub struct EndpointData {
 #[derive(Debug, FromRow, Clone)]
 pub struct Admin {
     pub admin_id: AdminId,
-    pub contact_id: ContactId,
+    pub telegram_contact_id: ContactId,
+    pub phone_number: String,
+    pub email_address: String,
 }

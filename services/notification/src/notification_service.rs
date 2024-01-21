@@ -69,8 +69,9 @@ pub struct NotificationData {
     pub admin: AdminId,
     pub outage_id: OutageId,
     pub endpoint: EndpointId,
-    pub contact_id: ContactId,
+    pub telegram_contact_id: ContactId,
     pub is_first: bool,
+    pub http_address: String
 }
 
 pub struct ResponseData {
@@ -137,7 +138,9 @@ impl NotificationService {
                 log::error!("Errror getting endpoints to process: {:?}", error);
             } else {
                 let v = x.unwrap();
-                log::debug!("Got {:?} dead endpoints!", v.len());
+                if v.len() > 0 {
+                    log::info!("Got {:?} dead endpoints!", v.len());
+                }
                 let db_executor = self.db_executor.clone();
                 let sender = self.ntf_sender.clone();
 
@@ -148,7 +151,8 @@ impl NotificationService {
                         let sender = sender.clone();
                         tokio::spawn(async move {
                             let ntf_data =
-                                Self::get_notification_from_endpoint_data(&db_executor, x).await;
+                                Self::get_notification_from_endpoint_data(&db_executor, x.clone()).await;
+                            log::info!("Sending notification {:?} about endpoint {}", ntf_data, x.http_address);
                             Self::send_notification_and_mark_it(&db_executor, &sender, ntf_data)
                                 .await;
                         })
@@ -164,7 +168,7 @@ impl NotificationService {
     //     pub admin: AdminId,
     //     pub outage_id: OutageId,
     //     pub endpoint: EndpointId,
-    //     pub contact_id: ContactId,
+    //     pub telegram_contact_id: ContactId,
     //     pub is_first: bool,
     // }
 
@@ -172,7 +176,7 @@ impl NotificationService {
         db_executor: &MyDBQueryExecutor,
         endpoint_data: EndpointData,
     ) -> NotificationData {
-        let is_first = !endpoint_data.ntf_first_responded;
+        let is_first = !endpoint_data.ntf_is_first_notification_sent;
         let admin = if is_first {
             endpoint_data.conf_primary_admin
         } else {
@@ -185,8 +189,9 @@ impl NotificationService {
             admin: admin_data.admin_id,
             outage_id: endpoint_data.outage_id.unwrap(),
             endpoint: endpoint_data.endpoint_id,
-            contact_id: admin_data.contact_id,
+            telegram_contact_id: admin_data.telegram_contact_id,
             is_first: is_first,
+            http_address: endpoint_data.http_address
         }
     }
 
@@ -229,9 +234,10 @@ impl NotificationService {
                         .await;
                     if x.is_ok() {
                         log::info!(
-                            "marked endpoint: {}, outage: {:?} ",
+                            "endpoint: {}, outage: {:?} marked as 'responded' by admin {}",
                             response_data.endpoint,
-                            response_data.outage_id
+                            response_data.outage_id,
+                            response_data.admin
                         );
                     } else {
                         log::error!(
