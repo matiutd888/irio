@@ -3,14 +3,13 @@ mod db_executor;
 mod domain;
 mod notification_sender;
 mod notification_service;
-use std::io::Write;
-
+use clap::{arg, command, Parser};
 use log::LevelFilter;
+use std::io::Write;
 
 use anyhow::{Ok, Result};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn init_logger() {
     env_logger::Builder::new()
         .filter_level(LevelFilter::Info)
         .format(|buf, record| {
@@ -25,8 +24,26 @@ async fn main() -> Result<()> {
             )
         })
         .init();
+}
 
-    let j = tokio::spawn(notification_service::run_notification_service());
+// / Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Tcp server address to send notifications to
+    #[arg(long)]
+    notify_tcp: Option<String>,
+}
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    init_logger();
+
+    let args = Args::parse();
+    log::info!("Args = {:?}", args);
+    let j = tokio::spawn(notification_service::run_notification_service(
+        args.notify_tcp,
+    ));
     let _ = j.await;
     Ok(())
 }

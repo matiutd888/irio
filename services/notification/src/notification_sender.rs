@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::{ops::DerefMut, sync::Arc};
+
 use teloxide::{
     dispatching::Dispatcher,
     payloads::SendMessageSetters,
@@ -14,7 +16,11 @@ use lettre::{
 };
 
 use teloxide::prelude::*;
-use tokio::sync::mpsc::Sender;
+use tokio::{
+    io::AsyncWriteExt,
+    net::TcpStream,
+    sync::{mpsc::Sender, Mutex},
+};
 use uuid::Uuid;
 
 use crate::{
@@ -213,6 +219,51 @@ impl NotificationSender for EmailNotificationSender {
             .unwrap();
 
         let result = self.mailer.send(email).await;
+        match result {
+            Ok(_) => log::info!("Message sent successfully"),
+            Err(e) => log::error!("Failed to send message: {}", e),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct TcpNotificationSender {
+    tcp_stream: Arc<Mutex<TcpStream>>,
+    server_address: String,
+}
+
+impl TcpNotificationSender {
+    pub async fn new(server_address: String) -> anyhow::Result<TcpNotificationSender> {
+        let res = TcpStream::connect(server_address.clone()).await?;
+
+        Ok(TcpNotificationSender {
+            tcp_stream: Arc::new(Mutex::new(res)),
+            server_address: server_address,
+        })
+    }
+}
+
+#[async_trait::async_trait]
+impl NotificationSender for TcpNotificationSender {
+    async fn send_notification(&self, x: NotificationData) {
+        let text = format!(
+            "endpoint={};outage={};is_first={};admin={};http_address={}",
+            x.endpoint, x.outage_id, x.is_first, x.admin, x.http_address
+        );
+        log::info!("Attempting to concat {} by tcp {}", x.admin, x.email);
+
+        // let email = lettre::Message::builder()
+        //     .from("Irio <irioirio80@gmail.com>".parse().unwrap())
+        //     .to(format!("<{}>", x.email).parse().unwrap())
+        //     .subject(format!("Outage: {}", x.http_address))
+        //     .header(ContentType::TEXT_PLAIN)
+        //     .body(text)
+        //     .unwrap();
+
+        let mut guard = self.tcp_stream.lock().await;
+        let tcp_stream = guard.deref_mut();
+        let result = tcp_stream.write_all(text.as_bytes()).await;
+        drop(guard);
         match result {
             Ok(_) => log::info!("Message sent successfully"),
             Err(e) => log::error!("Failed to send message: {}", e),
