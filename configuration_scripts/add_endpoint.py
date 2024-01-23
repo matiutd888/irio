@@ -52,13 +52,15 @@ def main():
     parser.add_argument('--primary-admin', type=str, required=True, help='Primary admin ID')
     parser.add_argument('--secondary-admin', type=str, required=True, help='Secondary admin ID')
     parser.add_argument('--response-duration', type=str, required=True, help='Allowed response duration')
+    parser.add_argument('--is-down', default=False)
+    parser.add_argument('--outage-id', type=str, required=False, help='outage id', default=None)
 
     args = parser.parse_args()
 
     endpoint_data_to_add = {
         'http_address': args.http_address,
-        'is_down': False,
-        'outage_id': None,
+        'is_down': args.is_down,
+        'outage_id': args.outage_id,
         'ntf_is_being_handled': False,
         'ntf_is_being_handled_timestamp': None,
         'ntf_is_being_handled_service_id': None,

@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
     init_logger();
 
     let args = Args::parse();
-
+    log::info!("Args = {:?}", args);
     let j = tokio::spawn(notification_service::run_notification_service(
         args.notify_tcp,
     ));
