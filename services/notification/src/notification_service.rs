@@ -81,7 +81,10 @@ pub struct AggregatedNotificationSender {
 }
 
 impl AggregatedNotificationSender {
-    fn create(t_sender: TelegramNotificationSender, email_sender: Option<EmailNotificationSender>) -> AggregatedNotificationSender {
+    fn create(
+        t_sender: TelegramNotificationSender,
+        email_sender: Option<EmailNotificationSender>,
+    ) -> AggregatedNotificationSender {
         let t = ImplementedNotificationSender::Telegram(t_sender);
         // let e: ImplementedNotificationSender = ImplementedNotificationSender::Email(email_sender);
         AggregatedNotificationSender { senders: vec![t] }

@@ -217,5 +217,3 @@ impl NotificationSender for EmailNotificationSender {
         }
     }
 }
-
-
