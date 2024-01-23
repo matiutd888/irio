@@ -120,7 +120,6 @@ impl TelegramNotificationResponseListener {
         }
     }
 
-    
     pub fn new(b: Bot, sender: Sender<ResponseData>) -> TelegramNotificationResponseListener {
         TelegramNotificationResponseListener {
             bot: b,
