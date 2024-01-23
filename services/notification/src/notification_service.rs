@@ -7,7 +7,7 @@ use crate::{
     domain::{Admin, AdminId, ContactId, EndpointData, EndpointId, OutageId},
     notification_sender::{
         create_telegram_notification_sender_and_receiver, EmailNotificationSender,
-        TelegramNotificationResponseListener, TelegramNotificationSender,
+        TcpNotificationSender, TelegramNotificationResponseListener, TelegramNotificationSender,
     },
 };
 use ::futures::stream::FuturesUnordered;
@@ -65,6 +65,7 @@ pub trait NotificationSender: Send + Sync + Clone {
 enum ImplementedNotificationSender {
     Telegram(TelegramNotificationSender),
     Email(EmailNotificationSender),
+    Tcp(TcpNotificationSender),
 }
 
 #[async_trait::async_trait]
@@ -73,6 +74,7 @@ impl NotificationSender for ImplementedNotificationSender {
         match &self {
             ImplementedNotificationSender::Telegram(s) => s.send_notification(x).await,
             ImplementedNotificationSender::Email(s) => s.send_notification(x).await,
+            ImplementedNotificationSender::Tcp(s) => s.send_notification(x).await,
         }
     }
 }
@@ -86,10 +88,20 @@ impl AggregatedNotificationSender {
     fn create(
         t_sender: TelegramNotificationSender,
         _email_sender: Option<EmailNotificationSender>,
+        _tcp_sender: Option<TcpNotificationSender>,
     ) -> AggregatedNotificationSender {
         let t = ImplementedNotificationSender::Telegram(t_sender);
-        // let e: ImplementedNotificationSender = ImplementedNotificationSender::Email(email_sender);
-        AggregatedNotificationSender { senders: vec![t] }
+        let mut res = vec![t];
+        if let Some(email_sender) = _email_sender {
+            let e: ImplementedNotificationSender =
+                ImplementedNotificationSender::Email(email_sender);
+            res.push(e);
+        }
+        if let Some(tcp_sender) = _tcp_sender {
+            let t = ImplementedNotificationSender::Tcp(tcp_sender);
+            res.push(t);
+        }
+        AggregatedNotificationSender { senders: res }
     }
 }
 
@@ -345,7 +357,7 @@ impl NotificationService {
     }
 }
 
-pub async fn run_notification_service() {
+pub async fn run_notification_service(tcp_server: Option<String>) {
     let c = init_service_params();
     let db_executor = MyDBQueryExecutor::new(
         c.secs_wait_when_handled,
@@ -356,8 +368,14 @@ pub async fn run_notification_service() {
     let (sender, receiver) = channel(constants::RESPONSE_DATA_CHANNEL_BUFFER_SIZE);
     let (telegram_ntf_sender, ntf_receiver) =
         create_telegram_notification_sender_and_receiver(sender);
-    // let email_sender = EmailNotificationSender::new();
-    let ntf_sender = AggregatedNotificationSender::create(telegram_ntf_sender, None);
+    let email_sender = None;
+    let tcp_sender = if let Some(tcp_server) = tcp_server {
+        Some(TcpNotificationSender::new(tcp_server).await.unwrap())
+    } else {
+        None
+    };
+    let ntf_sender =
+        AggregatedNotificationSender::create(telegram_ntf_sender, email_sender, tcp_sender);
     let ntf_service: NotificationService = NotificationService::new(db_executor, ntf_sender);
     ntf_service.init_service(ntf_receiver, receiver).await;
 }
