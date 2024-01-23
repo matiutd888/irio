@@ -4,8 +4,8 @@ use crate::{
     db_executor::MyDBQueryExecutor,
     domain::{Admin, AdminId, ContactId, EndpointData, EndpointId, OutageId},
     notification_sender::{
-        create_notification_sender_and_receiver, TelegramNotificationResponseListener,
-        TelegramNotificationSender,
+        create_telegram_notification_sender_and_receiver, EmailNotificationSender,
+        TelegramNotificationResponseListener, TelegramNotificationSender,
     },
 };
 use ::futures::stream::FuturesUnordered;
@@ -62,6 +62,7 @@ pub trait NotificationSender: Send + Sync + Clone {
 #[derive(Clone)]
 enum ImplementedNotificationSender {
     Telegram(TelegramNotificationSender),
+    Email(EmailNotificationSender),
 }
 
 #[async_trait::async_trait]
@@ -69,6 +70,7 @@ impl NotificationSender for ImplementedNotificationSender {
     async fn send_notification(&self, x: NotificationData) {
         match &self {
             ImplementedNotificationSender::Telegram(s) => s.send_notification(x).await,
+            ImplementedNotificationSender::Email(s) => s.send_notification(x).await,
         }
     }
 }
@@ -79,8 +81,9 @@ pub struct AggregatedNotificationSender {
 }
 
 impl AggregatedNotificationSender {
-    fn create(x: TelegramNotificationSender) -> AggregatedNotificationSender {
-        let t = ImplementedNotificationSender::Telegram(x);
+    fn create(t_sender: TelegramNotificationSender, email_sender: Option<EmailNotificationSender>) -> AggregatedNotificationSender {
+        let t = ImplementedNotificationSender::Telegram(t_sender);
+        // let e: ImplementedNotificationSender = ImplementedNotificationSender::Email(email_sender);
         AggregatedNotificationSender { senders: vec![t] }
     }
 }
@@ -131,6 +134,7 @@ pub struct NotificationData {
     pub telegram_contact_id: ContactId,
     pub is_first: bool,
     pub http_address: String,
+    pub email: String,
 }
 
 pub struct ResponseData {
@@ -263,6 +267,7 @@ impl NotificationService {
             telegram_contact_id: admin_data.telegram_contact_id,
             is_first: is_first,
             http_address: endpoint_data.http_address,
+            email: admin_data.email_address,
         }
     }
 
@@ -344,8 +349,10 @@ pub async fn run_notification_service() {
     )
     .await;
     let (sender, receiver) = channel(constants::RESPONSE_DATA_CHANNEL_BUFFER_SIZE);
-    let (telegram_ntf_sender, ntf_receiver) = create_notification_sender_and_receiver(sender);
-    let ntf_sender = AggregatedNotificationSender::create(telegram_ntf_sender);
+    let (telegram_ntf_sender, ntf_receiver) =
+        create_telegram_notification_sender_and_receiver(sender);
+    // let email_sender = EmailNotificationSender::new();
+    let ntf_sender = AggregatedNotificationSender::create(telegram_ntf_sender, None);
     let ntf_service: NotificationService = NotificationService::new(db_executor, ntf_sender);
     ntf_service.init_service(ntf_receiver, receiver).await;
 }

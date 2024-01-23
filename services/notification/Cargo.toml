@@ -24,3 +24,4 @@ sqlx = { version = "0.7", features = ["runtime-tokio", "postgres", "uuid", "chro
 teloxide = "0.12.2"
 futures = "0.3.30"
 env_logger = "0.10.2"
+lettre = { version = "0.11.3", features = ["tokio1", "tokio1-native-tls"] }
