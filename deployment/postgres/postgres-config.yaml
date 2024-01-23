@@ -1,0 +1,11 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: alerting_platform_db 
+  POSTGRES_USER: zolwiczek
+  POSTGRES_PASSWORD: kaczusia
