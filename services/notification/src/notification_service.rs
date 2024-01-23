@@ -4,7 +4,7 @@ use crate::{
     db_executor::MyDBQueryExecutor,
     domain::{Admin, AdminId, ContactId, EndpointData, EndpointId, OutageId},
     notification_sender::{
-        create_notification_sender_and_receiver, TelegramNotificationSender, TelegramReceiver,
+        create_notification_sender_and_receiver, TelegramNotificationSender, TelegramNotificationReceiver,
     },
 };
 use ::futures::stream::FuturesUnordered;
@@ -52,11 +52,11 @@ pub trait NotificationSender: Send + Sync + Clone {
     async fn send_notification(&self, x: NotificationData);
 }
 
-#[async_trait::async_trait]
-pub trait ResponseConsumer: Send + Sync {
-    // If still is down -
-    async fn consume_response(&mut self, response: ResponseData);
-}
+// #[async_trait::async_trait]
+// pub trait ResponseConsumer: Send + Sync {
+//     // If still is down -
+//     async fn consume_response(&mut self, response: ResponseData);
+// }
 
 #[derive(Clone)]
 enum ImplementedNotificationSender {
@@ -86,6 +86,17 @@ impl AggregatedNotificationSender {
     }
 }
 
+enum ImplementedNotificationReceiver {
+    Telegram(TelegramNotificationReceiver)
+}
+#[async_trait::async_trait]
+impl ResponseListener for ImplementedNotificationReceiver {
+    pub async listen_for_responses(&self) {
+        
+    }
+}
+
+
 #[async_trait::async_trait]
 impl NotificationSender for AggregatedNotificationSender {
     async fn send_notification(&self, x: NotificationData) {
@@ -105,9 +116,11 @@ impl NotificationSender for AggregatedNotificationSender {
     }
 }
 
+#[async_trait::async_trait]
 pub trait ResponseListener: Send + Sync {
-    async fn listen_for_responses() {}
+    async fn listen_for_responses(&self) {}
 }
+
 
 #[derive(Clone, Debug)]
 pub struct NotificationData {
@@ -168,11 +181,11 @@ impl NotificationService {
 
     pub async fn init_service(
         &self,
-        ntf_receiver: TelegramReceiver,
+        telegram_ntf_receiver: TelegramNotificationReceiver,
         response_receiver: Receiver<ResponseData>,
     ) {
         self.spawn_receiver_task(response_receiver).await;
-        self.spawn_notification_receiver_task(ntf_receiver).await;
+        self.spawn_notification_receiver_task(telegram_ntf_receiver).await;
         Self::run_main_loop(self.db_executor.clone(), self.ntf_sender.clone()).await;
     }
 
@@ -304,9 +317,9 @@ impl NotificationService {
             }
         });
     }
-    async fn spawn_notification_receiver_task(&self, ntf_receiver: TelegramReceiver) {
+    async fn spawn_notification_receiver_task(&self, ntf_receiver: TelegramNotificationReceiver) {
         tokio::spawn(async move {
-            ntf_receiver.listen_for_replies().await;
+            ntf_receiver.listen_for_responses().await;
         });
     }
 }

@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 use crate::{
     domain::EndpointId,
-    notification_service::{NotificationData, NotificationSender, ResponseData},
+    notification_service::{NotificationData, NotificationSender, ResponseData, ResponseListener},
 };
 
 #[derive(Debug, Clone)]
@@ -21,20 +21,19 @@ pub struct TelegramNotificationSender {
 }
 
 #[derive(Debug, Clone)]
-pub struct TelegramReceiver {
+pub struct TelegramNotificationReceiver {
     bot: Bot,
     sender: Sender<ResponseData>,
 }
 
 impl TelegramNotificationSender {
     fn prepare_telegram_msg(msg: String) -> String {
-        msg
-        .replace("_", "\\_")
-        .replace("*", "\\*")
-        .replace("[", "\\[")
-        .replace("`", "\\`")
-        .replace("=", "\\=")
-        .replace("-", "\\-")
+        msg.replace("_", "\\_")
+            .replace("*", "\\*")
+            .replace("[", "\\[")
+            .replace("`", "\\`")
+            .replace("=", "\\=")
+            .replace("-", "\\-")
     }
 
     pub fn new(b: Bot) -> TelegramNotificationSender {
@@ -68,8 +67,6 @@ impl NotificationSender for TelegramNotificationSender {
     }
 }
 
-
-
 fn parse_response(input: &str) -> Option<ResponseData> {
     let mut endpoint = None;
     let mut admin = None;
@@ -92,8 +89,14 @@ fn parse_response(input: &str) -> Option<ResponseData> {
             () // Invalid key-value pair
         }
     }
-    log::debug!("Response after parse {:?} {:?} {:?} {:?}", endpoint, admin, is_first, outage_id);
-    
+    log::debug!(
+        "Response after parse {:?} {:?} {:?} {:?}",
+        endpoint,
+        admin,
+        is_first,
+        outage_id
+    );
+
     // Check if all required values are present
     if let (Some(endpoint), Some(admin), Some(is_first), Some(outage_id)) =
         (endpoint, admin, is_first, outage_id)
@@ -109,9 +112,9 @@ fn parse_response(input: &str) -> Option<ResponseData> {
     }
 }
 
-impl TelegramReceiver {
-    pub fn new(b: Bot, sender: Sender<ResponseData>) -> TelegramReceiver {
-        TelegramReceiver {
+impl TelegramNotificationReceiver {
+    pub fn new(b: Bot, sender: Sender<ResponseData>) -> TelegramNotificationReceiver {
+        TelegramNotificationReceiver {
             bot: b,
             sender: sender,
         }
@@ -131,8 +134,11 @@ impl TelegramReceiver {
         };
         Ok(())
     }
+}
 
-    pub async fn listen_for_replies(&self) {
+#[async_trait::async_trait]
+impl ResponseListener for TelegramNotificationReceiver {
+    async fn listen_for_responses(&self) {
         let handler = Update::filter_message().endpoint(
             |bot: Bot, sender: Sender<ResponseData>, msg: Message| async move {
                 Self::handle_reply(msg, bot, sender).await
@@ -153,10 +159,10 @@ pub fn create_telegram_bot() -> Bot {
 
 pub fn create_notification_sender_and_receiver(
     s: Sender<ResponseData>,
-) -> (TelegramNotificationSender, TelegramReceiver) {
+) -> (TelegramNotificationSender, TelegramNotificationReceiver) {
     let b = create_telegram_bot();
     (
         TelegramNotificationSender::new(b.clone()),
-        TelegramReceiver::new(b, s),
+        TelegramNotificationReceiver::new(b, s),
     )
 }
