@@ -21,7 +21,7 @@ pub struct TelegramNotificationSender {
 }
 
 #[derive(Debug, Clone)]
-pub struct TelegramNotificationReceiver {
+pub struct TelegramNotificationResponseListener {
     bot: Bot,
     sender: Sender<ResponseData>,
 }
@@ -112,9 +112,9 @@ fn parse_response(input: &str) -> Option<ResponseData> {
     }
 }
 
-impl TelegramNotificationReceiver {
-    pub fn new(b: Bot, sender: Sender<ResponseData>) -> TelegramNotificationReceiver {
-        TelegramNotificationReceiver {
+impl TelegramNotificationResponseListener {
+    pub fn new(b: Bot, sender: Sender<ResponseData>) -> TelegramNotificationResponseListener {
+        TelegramNotificationResponseListener {
             bot: b,
             sender: sender,
         }
@@ -137,7 +137,7 @@ impl TelegramNotificationReceiver {
 }
 
 #[async_trait::async_trait]
-impl ResponseListener for TelegramNotificationReceiver {
+impl ResponseListener for TelegramNotificationResponseListener {
     async fn listen_for_responses(&self) {
         let handler = Update::filter_message().endpoint(
             |bot: Bot, sender: Sender<ResponseData>, msg: Message| async move {
@@ -159,10 +159,13 @@ pub fn create_telegram_bot() -> Bot {
 
 pub fn create_notification_sender_and_receiver(
     s: Sender<ResponseData>,
-) -> (TelegramNotificationSender, TelegramNotificationReceiver) {
+) -> (
+    TelegramNotificationSender,
+    TelegramNotificationResponseListener,
+) {
     let b = create_telegram_bot();
     (
         TelegramNotificationSender::new(b.clone()),
-        TelegramNotificationReceiver::new(b, s),
+        TelegramNotificationResponseListener::new(b, s),
     )
 }

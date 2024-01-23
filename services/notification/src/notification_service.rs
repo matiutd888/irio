@@ -1,10 +1,11 @@
-use std::{env, sync::Arc};
+use std::env;
 
 use crate::{
     db_executor::MyDBQueryExecutor,
     domain::{Admin, AdminId, ContactId, EndpointData, EndpointId, OutageId},
     notification_sender::{
-        create_notification_sender_and_receiver, TelegramNotificationSender, TelegramNotificationReceiver,
+        create_notification_sender_and_receiver, TelegramNotificationResponseListener,
+        TelegramNotificationSender,
     },
 };
 use ::futures::stream::FuturesUnordered;
@@ -80,22 +81,22 @@ pub struct AggregatedNotificationSender {
 impl AggregatedNotificationSender {
     fn create(x: TelegramNotificationSender) -> AggregatedNotificationSender {
         let t = ImplementedNotificationSender::Telegram(x);
-        AggregatedNotificationSender {
-            senders: vec![t]
+        AggregatedNotificationSender { senders: vec![t] }
+    }
+}
+
+enum ImplementedNotificationResponseListener {
+    Telegram(TelegramNotificationResponseListener),
+}
+
+#[async_trait::async_trait]
+impl ResponseListener for ImplementedNotificationResponseListener {
+    async fn listen_for_responses(&self) {
+        match &self {
+            ImplementedNotificationResponseListener::Telegram(r) => r.listen_for_responses().await,
         }
     }
 }
-
-enum ImplementedNotificationReceiver {
-    Telegram(TelegramNotificationReceiver)
-}
-#[async_trait::async_trait]
-impl ResponseListener for ImplementedNotificationReceiver {
-    pub async listen_for_responses(&self) {
-        
-    }
-}
-
 
 #[async_trait::async_trait]
 impl NotificationSender for AggregatedNotificationSender {
@@ -105,11 +106,12 @@ impl NotificationSender for AggregatedNotificationSender {
             .clone()
             .into_iter()
             .map(|i| {
-            let new_i = i.clone();
-            let new_x = x.clone();
-            tokio::spawn(async move {
-                new_i.send_notification(new_x).await;
-            })})
+                let new_i = i.clone();
+                let new_x = x.clone();
+                tokio::spawn(async move {
+                    new_i.send_notification(new_x).await;
+                })
+            })
             .collect::<FuturesUnordered<_>>();
 
         futures::future::join_all(futures).await;
@@ -120,7 +122,6 @@ impl NotificationSender for AggregatedNotificationSender {
 pub trait ResponseListener: Send + Sync {
     async fn listen_for_responses(&self) {}
 }
-
 
 #[derive(Clone, Debug)]
 pub struct NotificationData {
@@ -181,11 +182,15 @@ impl NotificationService {
 
     pub async fn init_service(
         &self,
-        telegram_ntf_receiver: TelegramNotificationReceiver,
-        response_receiver: Receiver<ResponseData>,
+        telegram_ntf_receiver: TelegramNotificationResponseListener,
+        response_data_receiver: Receiver<ResponseData>,
     ) {
-        self.spawn_receiver_task(response_receiver).await;
-        self.spawn_notification_receiver_task(telegram_ntf_receiver).await;
+        self.spawn_response_data_receiver_task(response_data_receiver)
+            .await;
+        self.spawn_notification_response_listener_task(
+            ImplementedNotificationResponseListener::Telegram(telegram_ntf_receiver),
+        )
+        .await;
         Self::run_main_loop(self.db_executor.clone(), self.ntf_sender.clone()).await;
     }
 
@@ -287,7 +292,10 @@ impl NotificationService {
         }
     }
 
-    async fn spawn_receiver_task(&self, mut response_receiver: Receiver<ResponseData>) {
+    async fn spawn_response_data_receiver_task(
+        &self,
+        mut response_receiver: Receiver<ResponseData>,
+    ) {
         let db_executor: MyDBQueryExecutor = self.db_executor.clone();
         tokio::spawn(async move {
             loop {
@@ -317,7 +325,10 @@ impl NotificationService {
             }
         });
     }
-    async fn spawn_notification_receiver_task(&self, ntf_receiver: TelegramNotificationReceiver) {
+    async fn spawn_notification_response_listener_task(
+        &self,
+        ntf_receiver: ImplementedNotificationResponseListener,
+    ) {
         tokio::spawn(async move {
             ntf_receiver.listen_for_responses().await;
         });
