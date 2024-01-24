@@ -5,7 +5,7 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_DB: alerting_platform_db 
+  POSTGRES_DB: postgres 
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgresSuperUserPsw
   POSTGRES_HOSTNAME: mypostgres
