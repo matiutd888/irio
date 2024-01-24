@@ -67,7 +67,7 @@ echo "notification image built"
 
 echo "building healthcheck:$HEALTHCHECK_VERSION image..."
 
-docker buildx build --file ../services/healhcheck/Dockerfile \
+docker buildx build --file ../services/healthcheck/Dockerfile \
 -t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION ../services/healthcheck/
 
 
