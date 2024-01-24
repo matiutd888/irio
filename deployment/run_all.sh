@@ -36,4 +36,5 @@ kubectl apply -f python-postgres-pod.yaml
 
 cd notification
 kubectl apply -f deployment.yaml
-# kubectl apply -f hpa.yaml
+kubectl apply -f hpa.yaml
+
