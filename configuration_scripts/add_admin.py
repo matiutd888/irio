@@ -15,12 +15,13 @@ def add_admin_data(cursor, admin):
             ]
         ):
             cursor.execute(
-                "INSERT INTO admin (admin_id, telegram_contact_id, phone_number, email_address) VALUES (%s, %s, %s, %s) RETURNING admin_id",
+                "INSERT INTO admin (admin_id, telegram_contact_id, phone_number, email_address, is_removed) VALUES (%s, %s, %s, %s, %s) RETURNING admin_id",
                 (
                     admin["admin_id"],
                     admin["telegram_contact_id"],
                     admin["phone_number"],
                     admin["email_address"],
+                    False
                 ),
             )
             admin_id = cursor.fetchone()[0]
@@ -52,7 +53,7 @@ def update_admin_data(cursor, admin):
             if existing_admin:
                 update_query = "UPDATE admin SET "
                 update_query += ", ".join(f"{key} = %s" for key in update_values.keys())
-                update_query += " WHERE admin_id = %s"
+                update_query += " WHERE admin_id = %s AND is_removed = False"
 
                 cursor.execute(
                     update_query, tuple(update_values.values()) + (admin_id,)
@@ -70,7 +71,7 @@ def delete_admin_data(cursor, admin):
     try:
         admin_id = admin.get("admin_id")
         if admin_id:
-            cursor.execute("DELETE FROM admin WHERE admin_id = %s", (admin_id,))
+            cursor.execute("UPDATE admin SET is_removed = True WHERE admin_id = %s", (admin_id,))
             print(f"Admin with admin_id {admin_id} deleted successfully")
         else:
             print("Error: Provide admin_id")
