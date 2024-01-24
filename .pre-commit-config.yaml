@@ -1,6 +1,16 @@
 repos:
--   repo: https://github.com/doublify/pre-commit-rust
-    rev: master
-    hooks:
-    -   id: fmt
-    -   id: cargo-check
+- repo: local
+  hooks:
+      -   id: format
+          name: "format rust files"
+          files: ^services/notification/.*\.rs$
+          entry: "cargo fmt --manifest-path services/notification/Cargo.toml"
+          language: system
+          pass_filenames: false
+      -   id: build
+          name: "cargo build"
+          files: ^services/notification/.*\.rs$
+          entry: "cargo build --manifest-path services/notification/Cargo.toml"
+          language: system
+          pass_filenames: false
+      
