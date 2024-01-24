@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: python-postges
+  labels:
+    app: python-postges
+spec:
+  containers:
+    - name: python-postgres-container
+      image: us-central1-docker.pkg.dev/semiotic-mender-401510/alerting-platform/python-postgres:v1
+      command: ["python /app/create_tables.py"]
+      envFrom:
+        - configMapRef:
+            name: postgres-config
