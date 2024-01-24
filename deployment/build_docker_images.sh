@@ -75,8 +75,8 @@ echo "healthcheck image built"
 
 echo "pushing images to artifacts repo.."
 
-docker push us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/notification:$NOTIFICATION_VERSION
-docker push us-central1-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION
+docker push us-$GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/notification:$NOTIFICATION_VERSION
+docker push us-$GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION
 
 
 echo "pushing images to artifacts repo done"
