@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-app
+  labels:
+    app: notification
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+      - name: notification-container
+        resources:
+            requests:
+              cpu: "500m"
+            limits:
+              cpu: "500m"
+        image: us-central1-docker.pkg.dev/semiotic-mender-401510/alerting-platform/notification:v1
+        command: ["/app/target/release/notification"]
+        envFrom:
+            - configMapRef:
+                name: postgres-config
