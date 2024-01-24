@@ -59,17 +59,17 @@ echo "Building images..."
 
 echo "building notification:$NOTIFICATION_VERSION image..."
 
-docker build \
+docker buildx build --file ../services/notification/Dockerfile \
 -t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/notification:$NOTIFICATION_VERSION \
---file services/notification/Dockerfile
+
 
 echo "notification image built"
 
 echo "building healthcheck:$HEALTHCHECK_VERSION image..."
 
-docker build \
+docker buildx build --file ../services/healhcheck/Dockerfile \
 -t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION \
---file services/healhcheck/Dockerfile
+
 
 echo "healthcheck image built"
 
