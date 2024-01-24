@@ -12,8 +12,7 @@ display_usage() {
     echo "usage: $0 -c|--k8s-cluster-name [cluster name (optional)]"
 }
 
-CLUSTER_NAME=$([ -z "$USER" ] && echo "alerting-cluster" || echo "$USER-alerting-cluster")
-
+CLUSTER_NAME="alerting-cluster"
 
 while (( "$#" )); do
     case "$1" in
