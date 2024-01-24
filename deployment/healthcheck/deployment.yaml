@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notification-app
+  name: healthcheck-app
   labels:
-    app: notification
+    app: healthcheck
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app: notification
+      app: healthcheck
   template:
     metadata:
       labels:
-        app: notification
+        app: healthcheck
     spec:
       containers:
-      - name: notification-container
+      - name: healthcheck-container
         # resources:
         #     requests:
         #       cpu: "500m"
         #     limits:
         #       cpu: "500m"
-        image: us-central1-docker.pkg.dev/semiotic-mender-401510/alerting-platform/notification:v1
-        command: ["/app/target/release/notification"]
+        image: us-central1-docker.pkg.dev/semiotic-mender-401510/alerting-platform/healthcheck:v1
+        command: ["/app/target/release/healthcheck"]
         # command: ["sleep", "infinity"]
         envFrom:
             - configMapRef:

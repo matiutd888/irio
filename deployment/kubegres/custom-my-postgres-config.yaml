@@ -10,3 +10,4 @@ data:
   POSTGRES_PASSWORD: postgresSuperUserPsw
   POSTGRES_HOSTNAME: mypostgres
   POSTGRES_PORT: "5432"
+  DATABASE_URL: postgresql://postgres:postgresSuperUserPsw@mypostgres:5432/postgres

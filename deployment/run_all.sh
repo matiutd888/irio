@@ -38,3 +38,4 @@ cd notification
 kubectl apply -f deployment.yaml
 kubectl apply -f hpa.yaml
 
+cd ..
