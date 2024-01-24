@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE endpoints SET is_down = $1, last_ping_time = NOW(), outage_id = $2 WHERE http_address = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3c0333381f513c5787894946cf163e1d0789306e90a9dfa73a833ad8ddba5ca6"
+}

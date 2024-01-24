@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT http_address, is_removed, frequency FROM endpoints WHERE http_address = ANY($1)",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "http_address",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "is_removed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "frequency",
+        "type_info": "Interval"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "bf4ed04d6736e3635015616a00a2e844c0d8aa1ca3181c69dc0bb4ce1233688c"
+}
