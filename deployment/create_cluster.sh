@@ -9,7 +9,7 @@ set -e
 
 display_usage() {
     echo "End-to-end deployment script for scylla on GKE."
-    echo "usage: $0 -z|--gcp-zone [GCP zone] -c|--k8s-cluster-name [cluster name (optional)]"
+    echo "usage: $0 -c|--k8s-cluster-name [cluster name (optional)]"
 }
 
 CLUSTER_NAME=$([ -z "$USER" ] && echo "alerting-cluster" || echo "$USER-alerting-cluster")
@@ -17,15 +17,6 @@ CLUSTER_NAME=$([ -z "$USER" ] && echo "alerting-cluster" || echo "$USER-alerting
 
 while (( "$#" )); do
     case "$1" in
-        -z|--gcp-zone)
-            if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-                GCP_ZONE=$2
-                shift 2
-            else
-                echo "Error: Argument for $1 is missing" >&2
-                exit 1
-            fi
-        ;;
         -c|--k8s-cluster-name)
             if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
                 CLUSTER_NAME=$2
@@ -48,7 +39,7 @@ done
 
 if [ "x$GCP_ZONE" == "x" ]
 then
-    display_usage
+    echo "GCP_ZONE must be declared"
     exit 1
 fi
 
