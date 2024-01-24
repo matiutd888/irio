@@ -9,4 +9,4 @@ data:
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgresSuperUserPsw
   POSTGRES_HOSTNAME: mypostgres
-  POSTGRES_PORT: 5432
+  POSTGRES_PORT: "5432"
