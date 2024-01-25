@@ -51,7 +51,8 @@ jobs:
       uses: 'google-github-actions/auth@v2'
       with:
         token_format: 'access_token'
-        credentials_json: '{"type": "service_account","project_id": "blep-runner","private_key_id": "a2720399b38bebcfb4f98494ce133607b5c15beb","private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC9BjbKMl/S7Jpg\nhCe7cUastWQGasRZI9Ahfp2BCPowbF+TknOVH5qJ5R+kiHYnpoz3cfjCW0SHRusf\nidPZnZ+INz2V4dtSQnNQxTl2ZGh6+uTXmAOVSzQsLjDPKQkSWtHJP8ZwH1qTHzLA\nFKN2JkT496Gc6pJ+dYA5nYTUYjhh7Psvdf3CvCu7G2GwWxMugmek1z0GC0Qk6yGu\niqLaO3UqTvc8RcXUnRPQSMpVt4Tg3/gyip6RkLIM7sq5aE/RELsOGGAZdZ60+HGd\nOkF7LXXjOt47hOT0U3T8z4GHSAQMmPDLfq9bKVZXHXjsOIwj7jo/wjHh7UZP2/fB\ny1Qe/A2RAgMBAAECggEAA24xUJxXLZtmZlXDqFTTEueUVgL6RwFdwbvb5Sd57ebL\nmcCkyRoqmnHOcBSba1cMFCINAQ75uIhGlFsSnY6NIoJZI2cWzUCAOgEoTLAgDspO\nnKSJPRyBKQOaFmpg3CTKjZ/TDL4e7VBZwg9l04s4gXmyBMhjifi9L95+VoHlUs6b\njSFMGwdPWOGS7mSV8dcdnF/G/fbOMxv0AgmBeRgUB7EEuhopy8VGaBAjjCws5g8v\nOJn+2uDwPzqLbEtrVVssjjDX1S2qYy6ZQxQCEq3TlpjYsaKQog8im+j90k46lG2T\npU/sclv9DYSYFG5EZAR655ToYBcNaNg0BMFxZxVUQQKBgQD02ThIF590ZvYmQT+j\n46pC6eUf4SEtT+OJndvTG81le3Eqg0SQf9trSoEV+mHLW2BXftoqxIX+m0bpXo67\nH0T6mlCwtcNVV+TorfBo8BpKpzDy6sKq2ProVV7m4rOpK7SN7uGYaDLUSXnSmw2M\n3hYwfyxBjxVF8UHlxsO7St9h8QKBgQDFoh5XdURLBbUv0XfA4kdn3DKGqsGJAgka\nNMlIogjDufDWyTmfdUvNvW/Ba1leUTRXYNs2rFfPan148djhct0f2/Nfo4PjbUaq\njf79qJx190HKtfIxyxyRs9JF1BwPnmBf+t3f6+agSwEtSyW1W46awZ8fYXf6XXKT\nkDm9kzHFoQKBgQDsQHxx83lEU+TG3MaPWKl8jzsqG4xrsF4Y91yYwobZmNaE8sxB\nsV0ClY0gq8uY8L5xLlFMWvv/w8wUecy2+WERfbzGBVxJCNozOUJzvtlflxtACQ10\n1JClhVpg5fX9EdLR8OF0sXX6KDuH31yfw9sdSFhnmawpJLU1BSjvmzsXwQKBgGWT\n0ax55UP6BwowyzAkHTdQgdedZCObHDqP7vSZ849FvndmrWs7yl5Qg2QSXLiRXCmc\n6o7LPcapoRvMkgAuHWEGl6wMSvlVbQC0Qt71DpXDI9mgcn8NOf3ZQrYJMvMEH9y0\n/9zbTooMgupYuWThTgZUhgiG/Dd+WCln84VwZiCBAoGBAJnTZN7Dbfx48Dchf0oY\nxuj5WWF05QaLCD1Z7fsUPVcM5Hv+l7nPqU0Omfo7yv4tFGxllOb+Hm0c3cN1WgQZ\n4aXmN+esQEENAZj+VDVNgZkmNn3azn2rgVfqyT55tT261SMRgJ9h80QwpIBxr+O0\nownq9td2I8sJmV4WtzaIVr9i\n-----END PRIVATE KEY-----\n","client_email": "githubrunner@blep-runner.iam.gserviceaccount.com","client_id": "117788130918662674317","auth_uri": "https://accounts.google.com/o/oauth2/auth","token_uri": "https://oauth2.googleapis.com/token","auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/githubrunner%40blep-runner.iam.gserviceaccount.com","universe_domain": "googleapis.com"}'
+        credentials_json: '{"type": "service_account", "project_id": "semiotic-mender-401510", "private_key_id": "a0ef875ec12e74841d87df1afcfdad1972c31c82", "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC93CnapRGl/uE+\ni7qKa7JPNWvw3LD4F6F9LqJJ3eqxoUgq3NhYIRt48EAmprbHNmHYWSw2rE+8fIai\nhSM2LNOE1mH57glyD8Fxy2PWaX2rCfi5pz1dK115C2B86N1MTyv/ayWv62aHhRBE\npyEoIveE0EIGSut67mUXm0no6JiEsuo8/lLcSkOxP8pVM2cLUxp1t956o42x4Nbk\nSc11cp4ZxKeYjqX0+P4R+Utnff0UVtE11T3kv8/XMlVG3FT1kbPo9NWZjju4gZ2H\nsj41GjgHA0wCU5BOQitRyIH6I6NHiD0oEX+pamPjD6Kqwh5iSy0f6zmT+QiHeo4V\nUai1FZt1AgMBAAECggEAOkqx+QTsVbxbOMJa3Cvzu5kJ0pJXrVxIAzDBuA8wAyij\nCTH0JJ7JmgidkaBnBuP+B5hdWE3wT00mYxigdn4t1R+jRkKc2M3YlVEejpKl+FEf\n8hRUZVouoT7qeX9fjpHSTuH9WLVcLeifVYzAw9t0hm0QkHEJOp2eITDW8PEU/syO\ndhW10wqgFVtfgbcGmO9O9Rl8V33YUGkF0r2eDG1WQy4wLAPccj7T53fXSEdMvgd1\nvXUmYQJI2qFlNOGXY/bpYTDWrxKhQtxhZsXwsIfcOuGsEyXIeFwJr8o91qwUNRkg\nsu61CA/Dqvtm0tyrecswKx+AmXuxosYG+Addi9ST4wKBgQDfO7V+QJKYByDakhve\nJRJfuKnpFPBiW9+RAKBwxHS0b5rsco2WI2215sobRA51B3maKRdcQRqdfZnJKQYL\nAFSdUchhQxd9WBoGr1TzuZK4W9gSUdOnjgT/RX6FnE3ESHakTZntOxiy3XwaKPZP\nvY4Y0DLfKXvRDQmpClNbH4kYuwKBgQDZumkTzhzdi0z2c/6TP/Y9RlBvfBOl5z4+\nXeiSOLtdPNF8+5LQSu2Oe7wr61i4KDCfJ4ZA4SHPndF4hsOJ3QlDpy6x+vvLIzgm\nNyaO7luDUsXQLQtHUskOwzRN/x2sWFIVsBbD7nviKP00REAGXPLYkwcHEDYe5f8o\nLhJt738xjwKBgHREjxUA4NlZ7RyqOOWM/XLppWWGyGUSYPEPGIFjcT2BW3mHeIMY\nVM4HNIDbA4SkrgtDF62vIwOgJXcGbOVR+MAvlmRCI3vfZT7SFzcSEn7/JxzzjX+Z\nkrS6J1nDvSVccJ7G5EMRIp4Wicq+RvvlSJtX5QcifiC137AxdpThafB9AoGBAMLM\nWDTjBMpmVm5t60e9Q0chQNft7/pQAU11YZ5paaEKx/cFch4v24jORdYZk1/4fT/3\n8dLcWg7SCVbHY+1VuHMyAcI1ZtAha5wtXa8lrPS6usb9dgjTFZXCqmpaJSdMQeyr\nhkK4fVgkCh6YLZxDzvZb3T7Bj1pntrkxN0XqsCcbAoGBAKEEMRz09KeQ0rlhGspW\nWl84YNk2kRnPOzq+K2CHGsvu6a2b6q293G0RTimzxbt3rmCGOV7yAcjrbO+Du4aY\nscFYo7GYjuFI6ssohRDz4aXkhxh+EbcvA5A2UXRTxX+K5lczCBTPl6hUoVWiOFNb\n8BK0bkaq23fKY6XIS6HXERML\n-----END PRIVATE KEY-----\n", "client_email": "githubrunner@semiotic-mender-401510.iam.gserviceaccount.com", "client_id": "117354093924252422384", "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/githubrunner%40semiotic-mender-401510.iam.gserviceaccount.com", "universe_domain": "googleapis.com"}'
+
 
     - name: Docker configuration
       run: |-
@@ -77,11 +78,18 @@ jobs:
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           services/notification/
+        docker build --file configuration_scripts/Dockerfile  \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration:latest" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" \
+          configuration_scripts/
+
     # Push the Docker image to Google Artifact Registry
     - name: Publish
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck:latest"
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest"
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration:latest"
     # Deploy
     - name: Deploy
       run: |-
