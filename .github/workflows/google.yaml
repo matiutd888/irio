@@ -87,8 +87,8 @@ jobs:
     # Push the Docker image to Google Artifact Registry
     - name: Publish
       run: |-
-        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck:latest"
-        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest"
+        # docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck:latest"
+        # docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest"
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration:latest"
     # Deploy
     - name: Deploy
