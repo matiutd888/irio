@@ -9,10 +9,12 @@ RUN apt install libssl-dev
 RUN cargo init
 
 COPY Cargo.toml Cargo.lock ./
+
 # build dependencies, when my source code changes, this build can be cached, we don't need to compile dependency again.
-RUN cargo build
+RUN cargo build --release
+
 # remove the dummy build.
-# RUN cargo clean -p healthcheck
+RUN cargo clean --release -p healthcheck 
 
 # copy source code
 COPY src ./src

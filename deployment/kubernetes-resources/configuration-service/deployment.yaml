@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configuration-app
+  labels:
+    app: configuration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configuration
+  template:
+    metadata:
+      labels:
+        app: configuration
+    spec:
+      containers:
+      - name: configuration
+        image: us-central1-docker.pkg.dev/semiotic-mender-401510/alerting-platform/configuration:v2
+        command: ["python", "/app/configuration_endpoint.py"]
+        ports:
+        - containerPort: 8000
+        envFrom:
+            - configMapRef:
+                name: postgres-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: configuration-svc  
+spec:
+  type: LoadBalancer
+  selector:
+     app: configuration
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
