@@ -20,7 +20,7 @@ echo "Creating artifcats repo.."
 
 gcloud artifacts repositories create \
 $ARTIFACTS_REPO_NAME \
---project $GOOGLE_CLOUD_PROJECT \
+--project blep-runner \
 --repository-format docker \
 --location $GCP_ZONE
 

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE endpoint_data SET last_ping_time = NOW() WHERE http_address = ANY($1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2623a61502a67126b02c41ff950c27e3dd3042c5c71562d3883af58612148bcc"
+}

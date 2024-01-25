@@ -65,7 +65,7 @@ echo "Building images..."
 echo "building notification:$NOTIFICATION_VERSION image..."
 
 docker buildx build --file ../services/notification/Dockerfile \
--t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/notification:$NOTIFICATION_VERSION ../services/notification/
+-t $GCP_ZONE-docker.pkg.dev/blep-runner/$ARTIFACTS_REPO_NAME/notification:$NOTIFICATION_VERSION ../services/notification/
 
 
 echo "notification image built"
@@ -73,12 +73,17 @@ echo "notification image built"
 echo "building healthcheck:$HEALTHCHECK_VERSION image..."
 
 docker buildx build --file ../services/healthcheck/Dockerfile \
--t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION ../services/healthcheck/
+-t $GCP_ZONE-docker.pkg.dev/blep-runner/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION ../services/healthcheck/
 
 
 echo "healthcheck image built"
 
+docker buildx build --file ../services/healthcheck/Dockerfile \
+-t $GCP_ZONE-docker.pkg.dev/blep-runner/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION ../services/healthcheck/
+
 echo "pushing images to artifacts repo.."
+
+gcloud auth configure-docker us-central1-docker.pkg.dev
 
 docker push $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/notification:$NOTIFICATION_VERSION
 docker push $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$HEALTHCHECK_VERSION

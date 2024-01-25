@@ -61,7 +61,7 @@ check_cluster_readiness() {
 
 gcloud container clusters create-auto $CLUSTER_NAME \
 --location=$GCP_ZONE \
---project=$GOOGLE_CLOUD_PROJECT
+--project=blep-runner
 
 
 

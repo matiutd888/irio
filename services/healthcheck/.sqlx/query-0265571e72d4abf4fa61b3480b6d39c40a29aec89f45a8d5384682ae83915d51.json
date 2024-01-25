@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT http_address, frequency FROM endpoints WHERE last_ping_time + 3 * frequency < NOW() AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED",
+  "query": "SELECT http_address, is_removed, frequency FROM endpoint_data WHERE http_address = ANY($1)",
   "describe": {
     "columns": [
       {
@@ -10,19 +10,25 @@
       },
       {
         "ordinal": 1,
+        "name": "is_removed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
         "name": "frequency",
         "type_info": "Interval"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8"
+        "TextArray"
       ]
     },
     "nullable": [
       false,
+      false,
       false
     ]
   },
-  "hash": "b70dc7dab8a2d30d12340acd70cf55849f22350ef09a6e361905903e02f748eb"
+  "hash": "0265571e72d4abf4fa61b3480b6d39c40a29aec89f45a8d5384682ae83915d51"
 }

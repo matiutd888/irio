@@ -9,6 +9,6 @@ then
 fi
 
 docker buildx build --file ../python_postgres_setup/Dockerfile \
--t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/python-postgres:v1 ../python_postgres_setup/
-docker push $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/python-postgres:v1
+-t $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/python-postgres:v2 ../python_postgres_setup/
+docker push $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/python-postgres:v2
 

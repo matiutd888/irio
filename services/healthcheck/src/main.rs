@@ -28,15 +28,15 @@ impl Endpoint {
     }
 }
 
-//define endpoints type
-type Endpoints = Arc<Mutex<HashMap<String, Endpoint>>>;
+//define endpoint_data type
+type EndpointData = Arc<Mutex<HashMap<String, Endpoint>>>;
 
 async fn update_endpoint(
     pool: &Pool<Postgres>,
     endpoint: &Endpoint,
     outage_id: Option<Uuid>,
 ) -> Result<(), sqlx::Error> {
-    query!("UPDATE endpoints SET is_down = $1, last_ping_time = NOW(), outage_id = $2 WHERE http_address = $3", endpoint.is_down, outage_id, endpoint.url)
+    query!("UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW(), outage_id = $2 WHERE http_address = $3", endpoint.is_down, outage_id, endpoint.url)
         .execute(pool)
         .await?;
     Ok(())
@@ -44,15 +44,15 @@ async fn update_endpoint(
 
 async fn health_check(
     address: String,
-    endpoints: Endpoints,
+    endpoint_data: EndpointData,
     pool: &Pool<Postgres>,
 ) -> Result<(), sqlx::Error> {
     loop {
         // let endpoint = endpoint.get_mut();
         info!("Checking {}", address);
         let response = reqwest::get(&address).await;
-        let mut endpoints = endpoints.lock().await;
-        let endpoint = endpoints.get_mut(&address).unwrap();
+        let mut endpoint_data = endpoint_data.lock().await;
+        let endpoint = endpoint_data.get_mut(&address).unwrap();
         let mut outage_id: Option<Uuid> = None;
         match response {
             Ok(resp) if resp.status().is_success() => {
@@ -83,30 +83,30 @@ async fn health_check(
     }
 }
 
-async fn poll_for_new_endpoints(
+async fn poll_for_new_endpoint_data(
     pool: Pool<Postgres>,
-    endpoints_mut: Endpoints,
+    endpoint_data_mut: EndpointData,
     freq: Duration,
 ) -> Result<(), sqlx::Error> {
-    let max_endpoints: i64 = env::var("MAX_ENDPOINTS")
+    let max_endpoint_data: i64 = env::var("MAX_endpoint_data")
         .unwrap_or_else(|_| "10".to_string())
         .parse()
-        .expect("MAX_ENDPOINTS must be a valid integer");
+        .expect("MAX_endpoint_data must be a valid integer");
     loop {
-        let mut endpoints = endpoints_mut.lock().await;
-        if endpoints.len() > 0 {
+        let mut endpoint_data = endpoint_data_mut.lock().await;
+        if endpoint_data.len() > 0 {
             let recs = sqlx::query!(
-                "SELECT http_address, is_removed, frequency FROM endpoints WHERE http_address = ANY($1)",
-                &endpoints.values().map(|e| e.url.clone()).collect::<Vec<String>>()
+                "SELECT http_address, is_removed, frequency FROM endpoint_data WHERE http_address = ANY($1)",
+                &endpoint_data.values().map(|e| e.url.clone()).collect::<Vec<String>>()
             ).fetch_all(&pool).await?;
             for rec in recs {
                 let address = rec.http_address.clone();
                 let is_removed = rec.is_removed;
-                let endpoint = endpoints.get_mut(&address).unwrap();
+                let endpoint = endpoint_data.get_mut(&address).unwrap();
                 if is_removed {
                     endpoint.task.abort();
                     info!("Aborted task for {}", address);
-                    endpoints.remove(&address);
+                    endpoint_data.remove(&address);
                 } else {
                     let frequency = Duration::from_micros(rec.frequency.microseconds as u64);
                     if endpoint.frequency != frequency {
@@ -119,20 +119,20 @@ async fn poll_for_new_endpoints(
                 }
             }
         }
-        let endpoints_len = endpoints.len();
-        info!("Currently {} endpoints", endpoints_len);
-        drop(endpoints);
+        let endpoint_data_len = endpoint_data.len();
+        info!("Currently {} endpoint_data", endpoint_data_len);
+        drop(endpoint_data);
 
-        let endpoints_fetch_number = max_endpoints - endpoints_len as i64;
-        info!("Fetching {} endpoints", endpoints_fetch_number);
+        let endpoint_data_fetch_number = max_endpoint_data - endpoint_data_len as i64;
+        info!("Fetching {} endpoint_data", endpoint_data_fetch_number);
         let mut transaction = pool.begin().await?;
         let recs = sqlx::query!(
-            "SELECT http_address, frequency FROM endpoints WHERE last_ping_time + 3 * frequency < NOW() AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED", 
-            endpoints_fetch_number)
+            "SELECT http_address, frequency FROM endpoint_data WHERE last_ping_time + 3 * frequency < NOW() AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED", 
+            endpoint_data_fetch_number)
             .fetch_all(&mut*transaction)
             .await?;
         sqlx::query!(
-            "UPDATE endpoints SET last_ping_time = NOW() WHERE http_address = ANY($1)",
+            "UPDATE endpoint_data SET last_ping_time = NOW() WHERE http_address = ANY($1)",
             &recs
                 .iter()
                 .map(|e| e.http_address.clone())
@@ -141,7 +141,7 @@ async fn poll_for_new_endpoints(
         .execute(&mut *transaction)
         .await?;
         transaction.commit().await?;
-        info!("Found {} endpoints", recs.len());
+        info!("Found {} endpoint_data", recs.len());
         if recs.len() == 0 {
             tokio::time::sleep(freq).await;
             continue;
@@ -150,16 +150,16 @@ async fn poll_for_new_endpoints(
         let mut tasks: Vec<tokio::task::JoinHandle<()>> = Vec::new();
         for rec in &recs {
             let address = rec.http_address.clone();
-            let endpoints_mut_clone = Arc::clone(&endpoints_mut);
+            let endpoint_data_mut_clone = Arc::clone(&endpoint_data_mut);
             let pool_copy = pool.clone();
             let task = tokio::spawn(async move {
-                if let Err(e) = health_check(address, endpoints_mut_clone, &pool_copy).await {
+                if let Err(e) = health_check(address, endpoint_data_mut_clone, &pool_copy).await {
                     error!("Health check failed: {:?}", e);
                 }
             });
             tasks.push(task);
         }
-        let mut endpoints = endpoints_mut.lock().await;
+        let mut endpoint_data = endpoint_data_mut.lock().await;
         for (task, rec) in tasks.into_iter().zip(recs.into_iter()) {
             let address = rec.http_address.clone();
             let freq = rec.frequency.clone();
@@ -168,7 +168,7 @@ async fn poll_for_new_endpoints(
                 Duration::from_micros(freq.microseconds as u64),
                 task,
             );
-            endpoints.insert(endpoint.url.clone(), endpoint);
+            endpoint_data.insert(endpoint.url.clone(), endpoint);
         }
 
         tokio::time::sleep(freq).await;
@@ -182,7 +182,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let database_url = env::var("DATABASE_URL")?;
     let pool = Pool::<Postgres>::connect(&database_url).await?;
-    let endpoints: Arc<Mutex<HashMap<String, Endpoint>>> = Arc::new(Mutex::new(HashMap::new()));
+    let endpoint_data: Arc<Mutex<HashMap<String, Endpoint>>> = Arc::new(Mutex::new(HashMap::new()));
 
     let freq: u64 = env::var("DB_POLL_FREQUENCY")
         .unwrap_or_else(|_| "10".to_string())
@@ -190,11 +190,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .expect("DB_POLL_FREQUENCY must be a valid integer");
 
     tokio::spawn(async move {
-        if let Err(e) = poll_for_new_endpoints(pool, endpoints, Duration::from_secs(freq)).await {
-            error!("Error polling for new endpoints: {:?}", e);
+        if let Err(e) =
+            poll_for_new_endpoint_data(pool, endpoint_data, Duration::from_secs(freq)).await
+        {
+            error!("Error polling for new endpoint_data: {:?}", e);
         }
     });
-    info!("Started polling for new endpoints every {} seconds", freq);
+    info!(
+        "Started polling for new endpoint_data every {} seconds",
+        freq
+    );
 
     loop {
         tokio::time::sleep(Duration::from_secs(60)).await;
