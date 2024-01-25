@@ -10,6 +10,8 @@ export GCP_ZONE=us-central1
 
 cd kubegres
 
+# https://www.kubegres.io/doc/getting-started.html
+
 # most probably needs to be done once
 # kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.17/kubegres.yaml
 
