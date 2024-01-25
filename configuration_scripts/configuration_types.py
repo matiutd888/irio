@@ -20,8 +20,8 @@ class DeleteAdminRequest(BaseModel):
 
 class AddEndpointRequest(BaseModel):
     http_address: str
-    is_down: bool
-    outage_id: str
+    is_down: bool = False
+    outage_id: str = None
     primary_admin: str
     secondary_admin: str
     response_duration: str
