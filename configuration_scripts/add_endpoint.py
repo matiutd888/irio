@@ -39,6 +39,8 @@ def add_endpoint_data(cursor, endpoint_data):
             endpoint_data['conf_allowed_response_duration'],
             endpoint_data['ntf_first_responded'],
             endpoint_data['is_removed'],
+            endpoint_data['frequency'],
+            endpoint_data['last_ping_time']
         ))
 
         endpoint_id = cursor.fetchone()[0]
