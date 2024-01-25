@@ -53,7 +53,7 @@ docker buildx build --file ../configuration_scripts/Dockerfile \
 
 echo "configuration image built"
 
-docker push $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/healthcheck:$CONFIGURATION_VERSION
+docker push $GCP_ZONE-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/$ARTIFACTS_REPO_NAME/configuration:$CONFIGURATION_VERSION
 
 echo "pushed to repo"
 
