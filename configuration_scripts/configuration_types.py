@@ -25,6 +25,7 @@ class AddEndpointRequest(BaseModel):
     primary_admin: str
     secondary_admin: str
     response_duration: str
+    frequency: str
 
 class DeleteEndpointRequest(BaseModel):
     endpoint_id: str
