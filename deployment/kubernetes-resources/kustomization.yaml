@@ -6,3 +6,4 @@ resources:
 - healthcheck/hpa.yaml
 - notification/deployment.yaml
 - notification/hpa.yaml
+- configuration-service/deployment.yaml
