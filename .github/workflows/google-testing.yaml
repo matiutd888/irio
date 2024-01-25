@@ -105,7 +105,7 @@ jobs:
           # replacing the image name in the k8s template
           ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
           ./kustomize build . | kubectl apply -f -
-          kubectl port-forward service/configuration-svc 8000:8000
+          # kubectl port-forward service/configuration-svc 8000:8000
 
       - name: Deploy testing service
         run: |-
@@ -117,4 +117,4 @@ jobs:
           ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
           ./kustomize build . | kubectl apply -f -
 
-          kubectl port-forward service/testing-service-svc 8001:8001
+          # kubectl port-forward service/testing-service-svc 8001:8001
