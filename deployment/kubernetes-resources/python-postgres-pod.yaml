@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: python-postgres
+  labels:
+    app: python-postgres
+spec:
+  containers:
+    - name: python-postgres-container
+      image: us-central1-docker.pkg.dev/blep-runner /alerting-platform/python-postgres:v2
+      command: ["/bin/sh"]
+      args:
+        - "-c"
+        - |
+          python /app/create_tables.py --drop-tables &&
+          sleep infinity
+      envFrom:
+        - configMapRef:
+            name: postgres-config

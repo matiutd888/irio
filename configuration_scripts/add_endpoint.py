@@ -1,10 +1,8 @@
 import os
 import argparse
 import psycopg2
-from datetime import datetime
-import uuid
 
-def add_endpoint(cursor, endpoint_data):
+def add_endpoint_data(cursor, endpoint_data):
     try:
         cursor.execute("""
             INSERT INTO endpoint_data (
@@ -20,8 +18,9 @@ def add_endpoint(cursor, endpoint_data):
                 conf_primary_admin,
                 conf_secondary_admin,
                 conf_allowed_response_duration,
-                ntf_first_responded
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ntf_first_responded,
+                is_removed
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING endpoint_id
         """, (
             endpoint_data['http_address'],
@@ -36,7 +35,8 @@ def add_endpoint(cursor, endpoint_data):
             endpoint_data['conf_primary_admin'],
             endpoint_data['conf_secondary_admin'],
             endpoint_data['conf_allowed_response_duration'],
-            endpoint_data['ntf_first_responded']
+            endpoint_data['ntf_first_responded'],
+            endpoint_data['is_removed'],
         ))
 
         endpoint_id = cursor.fetchone()[0]
@@ -46,18 +46,16 @@ def add_endpoint(cursor, endpoint_data):
     except Exception as e:
         print(f"Error adding endpoint: {e}")
 
-def main():
-    parser = argparse.ArgumentParser(description="Add an endpoint to the endpoint_data table.")
-    parser.add_argument('--http-address', type=str, required=True, help='HTTP address of the endpoint')
-    parser.add_argument('--primary-admin', type=str, required=True, help='Primary admin ID')
-    parser.add_argument('--secondary-admin', type=str, required=True, help='Secondary admin ID')
-    parser.add_argument('--response-duration', type=str, required=True, help='Allowed response duration')
-    parser.add_argument('--is-down', default=False)
-    parser.add_argument('--outage-id', type=str, required=False, help='outage id', default=None)
+def delete_endpoint_data(cursor, endpoint_id):
+    try:
+        cursor.execute("UPDATE endpoint_data SET is_removed = True WHERE endpoint_id = %s", (endpoint_id,))
+        print(f"Endpoint with endpoint_id {endpoint_id} deleted successfully")
+    except Exception as e:
+        print(f"Error deleting endpoint_id: {e}")
 
-    args = parser.parse_args()
 
-    endpoint_data_to_add = {
+def get_endpoint_from_dict(args):
+    return {
         'http_address': args.http_address,
         'is_down': args.is_down,
         'outage_id': args.outage_id,
@@ -70,8 +68,22 @@ def main():
         'conf_primary_admin': args.primary_admin,
         'conf_secondary_admin': args.secondary_admin,
         'conf_allowed_response_duration': args.response_duration,
-        'ntf_first_responded': False
+        'ntf_first_responded': False,
+        'is_removed': False,
     }
+
+def main():
+    parser = argparse.ArgumentParser(description="Add an endpoint to the endpoint_data table.")
+    parser.add_argument('--http-address', type=str, required=True, help='HTTP address of the endpoint')
+    parser.add_argument('--primary-admin', type=str, required=True, help='Primary admin ID')
+    parser.add_argument('--secondary-admin', type=str, required=True, help='Secondary admin ID')
+    parser.add_argument('--response-duration', type=str, required=True, help='Allowed response duration')
+    parser.add_argument('--is-down', default=False)
+    parser.add_argument('--outage-id', type=str, required=False, help='outage id', default=None)
+
+    args = parser.parse_args()
+
+    endpoint_data_to_add = get_endpoint_from_dict(args)
 
     db_params = {
         'host': os.environ["POSTGRES_HOSTNAME"],
@@ -83,7 +95,7 @@ def main():
 
     with psycopg2.connect(**db_params) as connection:
         with connection.cursor() as cursor:
-            add_endpoint(cursor, endpoint_data_to_add)
+            add_endpoint_data(cursor, endpoint_data_to_add)
 
 if __name__ == "__main__":
     main()
