@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: configuration
-        image: LOCATION-docker.pkg.dev/PROJECT_ID/alerting-platform/configuration:latest
+        image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/configuration:latest
         command: ["python", "/app/configuration_endpoint.py"]
         ports:
         - containerPort: 8000
