@@ -17,7 +17,7 @@ spec:
       containers:
       - name: configuration
         image: us-central1-docker.pkg.dev/semiotic-mender-401510/mimuw-labs/configuration:v1
-        command: ["python /app/configuration_endpoint.yaml"]
+        command: ["python", "/app/configuration_endpoint.py"]
         ports:
         - containerPort: 8000
         envFrom:
