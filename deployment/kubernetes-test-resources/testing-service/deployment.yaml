@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testing-app
+  labels:
+    app: tesing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tesing-service
+  template:
+    metadata:
+      labels:
+        app: tesing-service
+    spec:
+      containers:
+      - name: tesing-service
+        image: LOCATION-docker.pkg.dev/PROJECT_ID/alerting-platform/tesing-service:latest
+        command: ["python", "/app/service.py"]
+        ports:
+        - containerPort: 8001
+        # envFrom:
+        #     - configMapRef:
+        #         name: postgres-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: tesing-service-svc  
+spec:
+  type: LoadBalancer
+  selector:
+     app: tesing-service
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
