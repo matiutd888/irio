@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testing-app
+  labels:
+    app: testing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testing-service
+  template:
+    metadata:
+      labels:
+        app: testing-service
+    spec:
+      containers:
+      - name: testing-service
+        image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/testing-service:latest
+        command: ["python", "/app/service.py"]
+        ports:
+        - containerPort: 8001
+        envFrom:
+            - configMapRef:
+                name: postgres-config
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: testing-service-svc  
+spec:
+  type: LoadBalancer
+  selector:
+     app: testing-service
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
