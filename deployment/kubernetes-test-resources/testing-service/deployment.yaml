@@ -20,9 +20,9 @@ spec:
         command: ["python", "/app/service.py"]
         ports:
         - containerPort: 8001
-        # envFrom:
-        #     - configMapRef:
-        #         name: postgres-config
+        envFrom:
+            - configMapRef:
+                name: postgres-config
 
 ---
 

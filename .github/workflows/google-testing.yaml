@@ -102,8 +102,10 @@ jobs:
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
 
-          # replacing the image name in the k8s template
-          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
+          # replacing the image name in the k8s template  
+          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/notification=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification
+          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/healthcheck=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck
+          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/configuration=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration
           ./kustomize build . | kubectl apply -f -
           # kubectl port-forward service/configuration-svc 8000:8000
 
@@ -114,7 +116,7 @@ jobs:
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
 
-          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
+          ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/testing service=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/testing service
           ./kustomize build . | kubectl apply -f -
 
           # kubectl port-forward service/testing-service-svc 8001:8001

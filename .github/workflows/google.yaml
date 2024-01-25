@@ -98,7 +98,9 @@ jobs:
         chmod u+x ./kustomize
         
         # replacing the image name in the k8s template
-        ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
+        ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/notification=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification
+        ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/healthcheck=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck
+        ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/configuration=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration
         ./kustomize build . | kubectl apply -f -
 
         # kubectl port-forward service/configuration-svc 8000:8000
