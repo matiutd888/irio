@@ -8,7 +8,12 @@ spec:
   containers:
     - name: python-postgres-container
       image: us-central1-docker.pkg.dev/semiotic-mender-401510/alerting-platform/python-postgres:v1
-      command: ["python", "/app/create_tables.py"]
+      command: ["/bin/sh"]
+      args:
+        - "-c"
+        - |
+          python /app/create_tables.py --drop-tables &&
+          sleep infinity
       envFrom:
         - configMapRef:
             name: postgres-config
