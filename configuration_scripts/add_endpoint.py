@@ -22,7 +22,7 @@ def add_endpoint_data(cursor, endpoint_data):
                 is_removed,
                 frequency,
                 last_ping_time                       
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING endpoint_id
         """, (
             endpoint_data['http_address'],
