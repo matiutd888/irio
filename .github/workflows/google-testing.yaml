@@ -84,7 +84,7 @@ jobs:
           --build-arg GITHUB_REF="$GITHUB_REF" \
           configuration_scripts/
         docker build --file service_test/Dockerfile  \
-          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/tesing-service:latest" \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/testing-service:latest" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           service_test/
@@ -95,6 +95,7 @@ jobs:
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck:latest"
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest"
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration:latest"
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/testing-service:latest"
     # Deploy
     - name: Deploy
       run: |-
@@ -105,6 +106,8 @@ jobs:
         # replacing the image name in the k8s template
         ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
         ./kustomize build . | kubectl apply -f -
+        kubectl port-forward service/configuration-svc 8000:8000
+
     - name: Deploy testing service
         cd ../kubernetest-test-resources/
         
@@ -113,4 +116,6 @@ jobs:
         
         ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY
         ./kustomize build . | kubectl apply -f -
+        
+        kubectl port-forward service/testing-service-svc 8001:8001
 
