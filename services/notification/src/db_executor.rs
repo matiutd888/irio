@@ -35,6 +35,12 @@ impl MyDBQueryExecutor {
     conf_allowed_response_duration,
     ntf_first_responded";
 
+    const ADMIN_DB_LAYOUT: &'static str = "
+    admin_id,
+    telegram_contact_id,
+    phone_number,
+    email_address
+    ";
     const ENDPOINTS_TABLE_NAME: &'static str = "endpoint_data";
     const ADMINS_TABLE_NAME: &'static str = "admin";
     const CURRENT_TIMESTAMP: &'static str = "CURRENT_TIMESTAMP";
@@ -70,7 +76,7 @@ impl MyDBQueryExecutor {
 
         let is_not_handled: String = format!("(NOT ntf_is_being_handled) OR (ntf_is_being_handled_timestamp + INTERVAL '{} seconds' < {})", self.secs_wait_when_handled, Self::CURRENT_TIMESTAMP);
         format!(
-            "is_down AND ({}) AND ({})",
+            "(NOT is_removed) AND is_down AND ({}) AND ({})",
             is_not_handled, notification_needs_to_be_sent_condition
         )
     }
@@ -96,10 +102,11 @@ impl MyDBQueryExecutor {
 
     async fn sql_get_admin_id(&self, admin_id: AdminId) -> Result<Admin> {
         let get_admin_id_str = format!(
-            "SELECT * 
-            FROM {} 
+            "SELECT {} 
+            FROM {}
             WHERE 
-                admin_id = $1",
+                admin_id = $1 AND is_removed = false",
+            Self::ADMIN_DB_LAYOUT,
             Self::ADMINS_TABLE_NAME
         );
         let ret = sqlx::query_as::<Postgres, Admin>(&get_admin_id_str)
