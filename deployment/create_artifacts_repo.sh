@@ -7,7 +7,7 @@ display_usage() {
     echo "usage: $0 (GCP_ZONE env var must be declared)"
 }
 
-ARTIFACTS_REPO_NAME=alerting-platform
+ARTIFACTS_REPO_NAME=alerting-platform-test
 
 if [ "x$GCP_ZONE" == "x" ]
 then

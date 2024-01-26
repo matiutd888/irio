@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: testing-service
-        image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/testing-service:latest
+        image: TESTING_SERVICE_IMAGE
         command: ["python", "/app/service.py"]
         ports:
         - containerPort: 8001

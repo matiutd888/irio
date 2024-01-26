@@ -7,3 +7,6 @@ resources:
 - notification/deployment.yaml
 - notification/hpa.yaml
 - configuration-service/deployment.yaml
+- kubegres/custom-my-postgres-config.yaml
+- kubegres/my-postgres-secret.yaml
+- kubegres/my-postgres.yaml
