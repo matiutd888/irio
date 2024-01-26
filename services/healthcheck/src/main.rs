@@ -37,9 +37,30 @@ async fn update_endpoint(
     endpoint: &Endpoint,
     outage_id: Option<Uuid>,
 ) -> Result<(), sqlx::Error> {
-    query!("UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW(), outage_id = $2 WHERE http_address = $3", endpoint.is_down, outage_id, endpoint.url)
+    if outage_id.is_none() {
+        query!(
+            "UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW() WHERE http_address = $2",
+            endpoint.is_down,
+            endpoint.url
+        )
         .execute(pool)
         .await?;
+        return Ok(());
+    } else {
+        query(
+            "UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW(), outage_id = $2, 
+            ntf_is_being_handled = False,
+            ntf_is_first_notification_sent = False,
+            ntf_is_second_notification_sent = False,
+            ntf_first_responded = False
+         WHERE http_address = $3",
+        )
+        .bind(endpoint.is_down)
+        .bind(outage_id)
+        .bind(endpoint.url.clone())
+        .execute(pool)
+        .await?;
+    }
     Ok(())
 }
 

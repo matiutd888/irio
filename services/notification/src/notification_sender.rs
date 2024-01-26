@@ -47,6 +47,7 @@ impl TelegramNotificationSender {
             .replace("`", "\\`")
             .replace("=", "\\=")
             .replace("-", "\\-")
+            .replace(".", "\\.")
     }
 
     pub fn new(b: Bot) -> TelegramNotificationSender {
