@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT http_address, frequency FROM endpoint_data WHERE last_ping_time + 3 * frequency < NOW() AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED",
+  "query": "SELECT http_address, frequency FROM endpoint_data WHERE (last_ping_time IS NULL OR last_ping_time + 3 * frequency < NOW()) AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED",
   "describe": {
     "columns": [
       {
@@ -24,5 +24,5 @@
       false
     ]
   },
-  "hash": "1d613ffe45329ba55d79db04605d776633a9784365a9b1beab65ca370fab5651"
+  "hash": "f42997124e988b921029060bd3abfbb7837ffcb87ec7814922556da3fe0c05eb"
 }
