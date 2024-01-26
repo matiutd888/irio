@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::env;
+use std::{env, time::Duration};
 
 use crate::{
     db_executor::MyDBQueryExecutor,
@@ -188,16 +188,19 @@ pub fn init_service_params() -> ServiceParams {
 struct NotificationService {
     db_executor: MyDBQueryExecutor,
     ntf_sender: AggregatedNotificationSender,
+    db_poll_freq: Duration,
 }
 
 impl NotificationService {
     pub fn new(
         db_executor: MyDBQueryExecutor,
         ntf_sender: AggregatedNotificationSender,
+        db_poll_freq: Duration,
     ) -> NotificationService {
         NotificationService {
             db_executor,
             ntf_sender,
+            db_poll_freq,
         }
     }
 
@@ -212,12 +215,18 @@ impl NotificationService {
             ImplementedNotificationResponseListener::Telegram(telegram_ntf_receiver),
         )
         .await;
-        Self::run_main_loop(self.db_executor.clone(), self.ntf_sender.clone()).await;
+        Self::run_main_loop(
+            self.db_executor.clone(),
+            self.ntf_sender.clone(),
+            self.db_poll_freq,
+        )
+        .await;
     }
 
     async fn run_main_loop(
         db_executor: MyDBQueryExecutor,
         ntf_sender: AggregatedNotificationSender,
+        db_poll_freq: Duration,
     ) {
         loop {
             let x = db_executor.get_endpoints_to_process().await;
@@ -252,6 +261,7 @@ impl NotificationService {
                     .collect::<FuturesUnordered<_>>();
                 futures::future::join_all(futures).await;
             }
+            tokio::time::sleep(db_poll_freq).await;
         }
     }
 
@@ -357,7 +367,7 @@ impl NotificationService {
     }
 }
 
-pub async fn run_notification_service(tcp_server: Option<String>) {
+pub async fn run_notification_service(db_poll_freq: Duration, tcp_server: Option<String>) {
     let c = init_service_params();
     let db_executor = MyDBQueryExecutor::new(
         c.secs_wait_when_handled,
@@ -376,7 +386,8 @@ pub async fn run_notification_service(tcp_server: Option<String>) {
     };
     let ntf_sender =
         AggregatedNotificationSender::create(telegram_ntf_sender, email_sender, tcp_sender);
-    let ntf_service: NotificationService = NotificationService::new(db_executor, ntf_sender);
+    let ntf_service: NotificationService =
+        NotificationService::new(db_executor, ntf_sender, db_poll_freq);
     ntf_service.init_service(ntf_receiver, receiver).await;
 }
 

@@ -5,7 +5,7 @@ mod notification_sender;
 mod notification_service;
 use clap::{arg, command, Parser};
 use log::LevelFilter;
-use std::io::Write;
+use std::{env, io::Write, time::Duration};
 
 use anyhow::{Ok, Result};
 
@@ -39,9 +39,15 @@ struct Args {
 async fn main() -> Result<()> {
     init_logger();
 
+    let freq: u64 = env::var("DB_POLL_FREQUENCY")
+        .unwrap_or_else(|_| "5".to_string())
+        .parse()
+        .expect("DB_POLL_FREQUENCY must be a valid integer");
+
     let args = Args::parse();
     log::info!("Args = {:?}", args);
     let j = tokio::spawn(notification_service::run_notification_service(
+        Duration::from_secs(freq),
         args.notify_tcp,
     ));
     let _ = j.await;
