@@ -29,4 +29,5 @@ spec:
                 name: postgres-config
           env:
             - name: TELEGRAM_BOT_ID
-              value: 6486672213:AAGnpS0oitcPN8vGHqzGy_8ol4zPvviQeXo
+              value: 6886711339:AAGtn-uPuu2dHi4Y4KmJF47ovymj4XCAes4
+      imagePullPolicy: Always
