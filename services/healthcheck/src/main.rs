@@ -127,7 +127,7 @@ async fn poll_for_new_endpoint_data(
         info!("Fetching {} endpoint_data", endpoint_data_fetch_number);
         let mut transaction = pool.begin().await?;
         let recs = sqlx::query!(
-            "SELECT http_address, frequency FROM endpoint_data WHERE last_ping_time + 3 * frequency < NOW() AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED", 
+            "SELECT http_address, frequency FROM endpoint_data WHERE (last_ping_time IS NULL OR last_ping_time + 3 * frequency < NOW()) AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED", 
             endpoint_data_fetch_number)
             .fetch_all(&mut*transaction)
             .await?;
