@@ -21,7 +21,7 @@ spec:
         #       cpu: "500m"
         #     limits:
         #       cpu: "500m"
-        image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/healthcheck:latest
+        image: HEALTHCHECK_IMAGE
         command: ["/app/target/release/healthcheck"]
         # command: ["sleep", "infinity"]
         envFrom:
