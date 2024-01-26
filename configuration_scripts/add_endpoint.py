@@ -19,8 +19,10 @@ def add_endpoint_data(cursor, endpoint_data):
                 conf_secondary_admin,
                 conf_allowed_response_duration,
                 ntf_first_responded,
-                is_removed
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                is_removed,
+                frequency,
+                last_ping_time                       
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING endpoint_id
         """, (
             endpoint_data['http_address'],
@@ -37,6 +39,8 @@ def add_endpoint_data(cursor, endpoint_data):
             endpoint_data['conf_allowed_response_duration'],
             endpoint_data['ntf_first_responded'],
             endpoint_data['is_removed'],
+            endpoint_data['frequency'],
+            endpoint_data['last_ping_time']
         ))
 
         endpoint_id = cursor.fetchone()[0]
@@ -70,6 +74,8 @@ def get_endpoint_from_dict(args):
         'conf_allowed_response_duration': args.response_duration,
         'ntf_first_responded': False,
         'is_removed': False,
+        'last_ping_time': None,
+        'frequency': args.frequency
     }
 
 def main():
@@ -80,7 +86,8 @@ def main():
     parser.add_argument('--response-duration', type=str, required=True, help='Allowed response duration')
     parser.add_argument('--is-down', default=False)
     parser.add_argument('--outage-id', type=str, required=False, help='outage id', default=None)
-
+    parser.add_argument('--frequency', type=str, required=True, help='frequency')
+    
     args = parser.parse_args()
 
     endpoint_data_to_add = get_endpoint_from_dict(args)

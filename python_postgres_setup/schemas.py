@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS endpoint_data (
     conf_secondary_admin VARCHAR(255) REFERENCES admin(admin_id) NOT NULL,
     conf_allowed_response_duration INTERVAL NOT NULL,
     ntf_first_responded BOOLEAN NOT NULL,
-    is_removed BOOLEAN NOT NULL
+    is_removed BOOLEAN NOT NULL,
+    last_ping_time TIMESTAMP,
+    frequency INTERVAL NOT NULL
 );
 """
 
