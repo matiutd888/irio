@@ -1,7 +1,8 @@
-use log::{debug, error, info};
+use log::{debug, error, info, LevelFilter};
 use reqwest;
 use sqlx::{query, Pool, Postgres};
 use std::collections::HashMap;
+use std::io::Write;
 use std::time::Duration;
 use std::{env, sync::Arc};
 use tokio::{self, sync::Mutex};
@@ -175,10 +176,27 @@ async fn poll_for_new_endpoint_data(
     }
 }
 
+fn init_logger() {
+    env_logger::Builder::new()
+        .filter_level(LevelFilter::Info)
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                r#"{{"timestamp":"{}","level":"{}","message":"{}","module":"{}","line":{}}}"#,
+                chrono::Utc::now().to_rfc3339(),
+                record.level(),
+                record.args(),
+                record.module_path().unwrap_or_default(),
+                record.line().unwrap_or(0),
+            )
+        })
+        .init();
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
-    env_logger::init();
+    init_logger();
 
     let database_url = env::var("DATABASE_URL")?;
     let pool = Pool::<Postgres>::connect(&database_url).await?;
