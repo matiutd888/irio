@@ -106,8 +106,8 @@ jobs:
         # For some reason deployments are not restarted.
         # Uncomment when we want to restart some deployment
         kubectl rollout restart deploy healthcheck-app
-        # kubectl rollout restart deploy notification-app
-        # kubectl rollout restart deploy configuration-app
+        kubectl rollout restart deploy notification-app
+        kubectl rollout restart deploy configuration-app
         
         # kubectl port-forward service/configuration-svc 8000:8000
 
