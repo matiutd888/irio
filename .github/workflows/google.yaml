@@ -73,11 +73,11 @@ jobs:
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           services/healthcheck/
-        # docker build --file services/notification/Dockerfile \
-        #   --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest" \
-        #   --build-arg GITHUB_SHA="$GITHUB_SHA" \
-        #   --build-arg GITHUB_REF="$GITHUB_REF" \
-        #   services/notification/
+        docker build --file services/notification/Dockerfile \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" \
+          services/notification/
         # docker build --file configuration_scripts/Dockerfile  \
         #   --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration:latest" \
         #   --build-arg GITHUB_SHA="$GITHUB_SHA" \
@@ -88,7 +88,7 @@ jobs:
     - name: Publish
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/healthcheck:latest"
-        # docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest"
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/notification:latest"
         # docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration:latest"
     # Deploy
     - name: Deploy
