@@ -109,6 +109,13 @@ jobs:
           ./kustomize build . | kubectl apply -f -
           # kubectl port-forward service/configuration-svc 8000:8000
 
+          # For some reason the deployments are not restarted
+          # Uncomment this when we want to restart some service on deplyment
+          # kubectl rollout restart deploy healthcheck-app
+          # kubectl rollout restart deploy notification-app
+          # kubectl rollout restart deploy configuration-app
+        
+
       - name: Deploy testing service
         run: |-
           cd deployment/kubernetes-test-resources/
@@ -119,4 +126,7 @@ jobs:
           ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/testing-service=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/testing-service
           ./kustomize build . | kubectl apply -f -
 
+
+          # kubectl rollout restart deploy testing-app
+        
           # kubectl port-forward service/testing-service-svc 8001:8001

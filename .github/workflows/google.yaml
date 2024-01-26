@@ -103,5 +103,11 @@ jobs:
         ./kustomize edit set image LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/configuration=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/configuration
         ./kustomize build . | kubectl apply -f -
 
+        # For some reason deployments are not restarted.
+        # Uncomment when we want to restart some deployment
+        # kubectl rollout restart deploy healthcheck-app
+        # kubectl rollout restart deploy notification-app
+        # kubectl rollout restart deploy configuration-app
+        
         # kubectl port-forward service/configuration-svc 8000:8000
 
