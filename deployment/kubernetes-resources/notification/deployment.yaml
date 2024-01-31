@@ -21,7 +21,7 @@ spec:
           #       cpu: "500m"
           #     limits:
           #       cpu: "500m"
-          image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/notification:latest
+          image: NOTIFICATION_IMAGE
           command: ["/app/target/release/notification"]
           # command: ["sleep", "infinity"]
           envFrom:
@@ -29,5 +29,5 @@ spec:
                 name: postgres-config
           env:
             - name: TELEGRAM_BOT_ID
-              value: 6486672213:AAGnpS0oitcPN8vGHqzGy_8ol4zPvviQeXo
+              value: $TELEGRAM_BOT_ID
 
