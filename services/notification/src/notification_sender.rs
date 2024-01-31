@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::{ops::DerefMut, sync::Arc};
+use std::{env, ops::DerefMut, sync::Arc};
 
 use teloxide::{
     dispatching::Dispatcher,
@@ -47,6 +47,7 @@ impl TelegramNotificationSender {
             .replace("`", "\\`")
             .replace("=", "\\=")
             .replace("-", "\\-")
+            .replace(".", "\\.")
     }
 
     pub fn new(b: Bot) -> TelegramNotificationSender {
@@ -167,7 +168,7 @@ impl ResponseListener for TelegramNotificationResponseListener {
 }
 
 pub fn create_telegram_bot() -> Bot {
-    Bot::new("6886711339:AAGtn-uPuu2dHi4Y4KmJF47ovymj4XCAes4")
+    Bot::new(env::var("TELEGRAM_BOT_ID").unwrap())
 }
 
 pub fn create_telegram_notification_sender_and_receiver(

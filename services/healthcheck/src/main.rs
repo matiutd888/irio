@@ -1,7 +1,8 @@
-use log::{debug, error, info};
+use log::{debug, error, info, LevelFilter};
 use reqwest;
 use sqlx::{query, Pool, Postgres};
 use std::collections::HashMap;
+use std::io::Write;
 use std::time::Duration;
 use std::{env, sync::Arc};
 use tokio::{self, sync::Mutex};
@@ -36,9 +37,30 @@ async fn update_endpoint(
     endpoint: &Endpoint,
     outage_id: Option<Uuid>,
 ) -> Result<(), sqlx::Error> {
-    query!("UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW(), outage_id = $2 WHERE http_address = $3", endpoint.is_down, outage_id, endpoint.url)
+    if outage_id.is_none() {
+        query!(
+            "UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW() WHERE http_address = $2",
+            endpoint.is_down,
+            endpoint.url
+        )
         .execute(pool)
         .await?;
+        return Ok(());
+    } else {
+        query(
+            "UPDATE endpoint_data SET is_down = $1, last_ping_time = NOW(), outage_id = $2, 
+            ntf_is_being_handled = False,
+            ntf_is_first_notification_sent = False,
+            ntf_is_second_notification_sent = False,
+            ntf_first_responded = False
+         WHERE http_address = $3",
+        )
+        .bind(endpoint.is_down)
+        .bind(outage_id)
+        .bind(endpoint.url.clone())
+        .execute(pool)
+        .await?;
+    }
     Ok(())
 }
 
@@ -127,7 +149,7 @@ async fn poll_for_new_endpoint_data(
         info!("Fetching {} endpoint_data", endpoint_data_fetch_number);
         let mut transaction = pool.begin().await?;
         let recs = sqlx::query!(
-            "SELECT http_address, frequency FROM endpoint_data WHERE last_ping_time + 3 * frequency < NOW() AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED", 
+            "SELECT http_address, frequency FROM endpoint_data WHERE (last_ping_time IS NULL OR last_ping_time + 3 * frequency < NOW()) AND not is_removed LIMIT $1 FOR UPDATE SKIP LOCKED", 
             endpoint_data_fetch_number)
             .fetch_all(&mut*transaction)
             .await?;
@@ -175,10 +197,27 @@ async fn poll_for_new_endpoint_data(
     }
 }
 
+fn init_logger() {
+    env_logger::Builder::new()
+        .filter_level(LevelFilter::Info)
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                r#"{{"timestamp":"{}","level":"{}","message":"{}","module":"{}","line":{}}}"#,
+                chrono::Utc::now().to_rfc3339(),
+                record.level(),
+                record.args(),
+                record.module_path().unwrap_or_default(),
+                record.line().unwrap_or(0),
+            )
+        })
+        .init();
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
-    env_logger::init();
+    init_logger();
 
     let database_url = env::var("DATABASE_URL")?;
     let pool = Pool::<Postgres>::connect(&database_url).await?;
