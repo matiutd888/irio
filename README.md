@@ -7,7 +7,7 @@ In case the administrator does not respond the alerting platform sends a notific
 ## Deployment
 
 The platform is deployed on GKE. It is distributed, highly available, scalable, and has a feature of autohealing. 
-Every change in a codebase is automatically built and deployed using Github Workflows.
+Every change in a codebase is automatically built and deployed using Github Actions.
 
 ## Testing
 
